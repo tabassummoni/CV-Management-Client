@@ -50,11 +50,11 @@ const Navbar = () => {
 
                 {/* Sign Up & Login Buttons */}
                 <div className="flex gap-2 mt-2">
-                    <Link className="btn btn-sm btn-outline">
+                    <Link to="/login" className="btn btn-sm btn-outline">
                         Login
                     </Link>
-                    <Link className="btn btn-sm btn-primary">
-                        Sign Up
+                    <Link to="/signup" className="btn btn-sm btn-primary">
+                        SignUp
                     </Link>
                 </div>
             </div>
