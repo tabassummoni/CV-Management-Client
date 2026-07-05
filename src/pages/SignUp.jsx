@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function SignUp() {
     const [firstName, setFirstName] = useState('');
@@ -9,11 +9,11 @@ export default function SignUp() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Basic validation
+        setError('');
         if (!firstName || !lastName || !email || !password || !confirmPassword) {
             setError('Please fill in all fields');
             return;
@@ -39,33 +39,49 @@ export default function SignUp() {
             return;
         }
         
-        // Here you would typically make an API call
-        console.log('Sign Up:', { firstName, lastName, email, password, agreeTerms });
-        setError('');
+        try {
+            const response = await fetch('/api/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: `${firstName} ${lastName}`,
+                    email,
+                    password,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Something went wrong');
+            }
+
+            console.log('Signup successful:', data);
+            navigate('/');
+        } catch (err) {
+            setError(err.message);
+        }
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center px-4 py-12">
             <div className="w-full max-w-md">
-                {/* Card */}
                 <div className="bg-white rounded-lg shadow-2xl p-8">
-                    {/* Header */}
                     <div className="text-center mb-8">
                         <div className="text-5xl mb-4">📄</div>
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">CV Management</h1>
                         <p className="text-gray-600">Create your account</p>
                     </div>
 
-                    {/* Error Message */}
                     {error && (
                         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
                             {error}
                         </div>
                     )}
 
-                    {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* First Name & Last Name */}
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -93,7 +109,6 @@ export default function SignUp() {
                             </div>
                         </div>
 
-                        {/* Email Field */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Email Address
@@ -107,7 +122,6 @@ export default function SignUp() {
                             />
                         </div>
 
-                        {/* Password Field */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Password
@@ -121,7 +135,6 @@ export default function SignUp() {
                             />
                         </div>
 
-                        {/* Confirm Password Field */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Confirm Password
@@ -135,7 +148,6 @@ export default function SignUp() {
                             />
                         </div>
 
-                        {/* Terms & Conditions */}
                         <label className="flex items-center">
                             <input
                                 type="checkbox"
@@ -148,7 +160,6 @@ export default function SignUp() {
                             </span>
                         </label>
 
-                        {/* Sign Up Button */}
                         <button
                             type="submit"
                             className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 rounded-lg hover:shadow-lg transition duration-300"
@@ -157,7 +168,6 @@ export default function SignUp() {
                         </button>
                     </form>
 
-                    {/* Divider */}
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-gray-300"></div>
@@ -167,7 +177,6 @@ export default function SignUp() {
                         </div>
                     </div>
 
-                    {/* Social Login */}
                     <div className="space-y-3">
                         <button className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition">
                             Google
@@ -177,7 +186,6 @@ export default function SignUp() {
                         </button>
                     </div>
 
-                    {/* Sign In Link */}
                     <p className="text-center text-gray-600 mt-6">
                         Already have an account?{' '}
                         <Link to="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
@@ -185,7 +193,6 @@ export default function SignUp() {
                         </Link>
                     </p>
 
-                    {/* Back to Home */}
                     <p className="text-center text-gray-600 mt-4">
                         <Link to="/" className="text-gray-600 hover:text-gray-700 font-medium">
                             ← Back to Home
@@ -193,7 +200,6 @@ export default function SignUp() {
                     </p>
                 </div>
 
-                {/* Footer Info */}
                 <div className="text-center mt-8 text-white">
                     <p className="text-sm opacity-90">
                         By signing up, you agree to our Terms & Conditions

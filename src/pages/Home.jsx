@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 export default function Home() {
   return (
     <div className="bg-white">
-      {/* Hero Section */}
       <section className="min-h-screen bg-gradient-to-r from-purple-600 via-purple-500 to-indigo-600 text-white flex items-center">
         <div className="max-w-6xl mx-auto px-4 w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -32,7 +31,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">Why Choose Us?</h2>
@@ -41,7 +39,6 @@ export default function Home() {
           </h6>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
             <div className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition">
               <div className="text-5xl mb-4">⚡</div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900">Lightning Fast</h3>
@@ -50,7 +47,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Feature 2 */}
             <div className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition">
               <div className="text-5xl mb-4">🎨</div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900">Professional Templates</h3>
@@ -59,7 +55,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Feature 3 */}
             <div className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition">
               <div className="text-5xl mb-4">🔒</div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900">Secure & Private</h3>
@@ -68,7 +63,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Feature 4 */}
             <div className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition">
               <div className="text-5xl mb-4">📱</div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900">Mobile Friendly</h3>
@@ -77,7 +71,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Feature 5 */}
             <div className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition">
               <div className="text-5xl mb-4">📊</div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900">ATS Optimized</h3>
@@ -86,7 +79,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Feature 6 */}
             <div className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition">
               <div className="text-5xl mb-4">🎯</div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900">Export Options</h3>
@@ -98,7 +90,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-16 text-gray-900">How It Works</h2>
@@ -139,7 +130,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6">Ready to Get Started?</h2>
@@ -152,7 +142,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
