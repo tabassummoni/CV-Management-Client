@@ -11,6 +11,9 @@ const Navbar = () => {
     const navigate = useNavigate();
     const dropdownRef = useRef(null);
 
+    // চেক করা ইউজার লগইন আছে কিনা
+    const isLoggedIn = !!localStorage.getItem('token');
+
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
@@ -45,9 +48,10 @@ const Navbar = () => {
         window.location.href = '/login';
     };
 
+    // 🌐 ড্যাশবোর্ড সহ ল্যাঙ্গুয়েজ টেক্সট আপডেট
     const text = {
-        en: { logo: '📄 CV Management', home: 'Home', about: 'About', templates: 'Templates', contact: 'Contact', searchPlaceholder: 'Search anything...', logout: 'Logout', login: 'Login', signup: 'SignUp' },
-        sp: { logo: '📄 Gestión de CV', home: 'Inicio', about: 'Sobre nosotros', templates: 'Plantillas', contact: 'Contacto', searchPlaceholder: 'Buscar todo...', logout: 'Cerrar sesión', login: 'Acceso', signup: 'Inscribirse' }
+        en: { logo: '📄 CV Management', home: 'Home', about: 'About', templates: 'Templates', contact: 'Contact', searchPlaceholder: 'Search anything...', logout: 'Logout', login: 'Login', signup: 'SignUp', dashboard: 'Dashboard' },
+        sp: { logo: '📄 Gestión de CV', home: 'Inicio', about: 'Sobre nosotros', templates: 'Plantillas', contact: 'Contacto', searchPlaceholder: 'Buscar todo...', logout: 'Cerrar sesión', login: 'Acceso', signup: 'Inscribirse', dashboard: 'Tablero' }
     };
 
     const currentText = text[lang] || text.en;
@@ -70,7 +74,12 @@ const Navbar = () => {
                     
                     {isMenuOpen && (
                         <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-56 absolute left-0 top-12">
-                            <li><Link to="/my-cv" onClick={() => setIsMenuOpen(false)}>📝 My CV</Link></li>
+                            {/* 📝 লগইন থাকলে ড্রপডাউনেও ড্যাশবোর্ড দেখাবে */}
+                            {isLoggedIn ? (
+                                <li><Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>📊 {currentText.dashboard}</Link></li>
+                            ) : (
+                                <li><Link to="/login" onClick={() => setIsMenuOpen(false)}>📝 My CV</Link></li>
+                            )}
                             <li><a onClick={() => setIsMenuOpen(false)}>❤️ Saved Templates</a></li>
                             <li><a onClick={() => setIsMenuOpen(false)}>⚙️ Settings</a></li>
                         </ul>
@@ -105,8 +114,18 @@ const Navbar = () => {
                     <li><Link to="/about">{currentText.about}</Link></li>
                     <li><Link to="/templates">{currentText.templates}</Link></li>
                     <li><Link to="/contact">{currentText.contact}</Link></li>
+                    
+                    {/* 🔐 কন্ডিশনাল রেন্ডারিং: লগইন থাকলে বড় স্ক্রিনে "Dashboard" লিঙ্ক দেখাবে */}
+                    {isLoggedIn && (
+                        <li>
+                            <Link to="/dashboard" className="text-purple-600 font-bold dark:text-purple-400">
+                                {currentText.dashboard}
+                            </Link>
+                        </li>
+                    )}
                 </ul>
 
+                {/* ল্যাঙ্গুয়েজ ড্রপডাউন */}
                 <div className="relative inline-block text-left" ref={dropdownRef}>
                     <button
                         type="button"
@@ -147,6 +166,7 @@ const Navbar = () => {
                     )}
                 </div>
 
+                {/* থিম বাটন */}
                 <button 
                     onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
                     className="btn btn-sm btn-ghost btn-circle text-lg"
@@ -155,16 +175,18 @@ const Navbar = () => {
                     {theme === 'light' ? '🌙' : '☀️'}
                 </button>
 
-                {localStorage.getItem('token') ? (
+                {/* 🔒 অথেনটিকেশন অ্যাকশন */}
+                {isLoggedIn ? (
                     <div className="flex items-center gap-2">
                         <div className="avatar placeholder">
-                            <div className="bg-purple-600 text-white rounded-full w-9 h-9 flex items-center justify-center">
+                            {/* ইউজারের প্রোফাইল আইকনটিতে ক্লিক করলেও এখন সোজা ড্যাশবোর্ডে যাবে */}
+                            <Link to="/dashboard" className="bg-purple-600 text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-purple-700 transition-all">
                                 <span className="text-sm">👤</span>
-                            </div>
+                            </Link>
                         </div>
                         <button 
                             onClick={handleLogout}
-                            className="btn btn-sm btn-ghost text-red-500 hover:bg-red-100 dark:hover:bg-red-950/30"
+                            className="btn btn-sm btn-ghost text-red-500 hover:bg-red-100 dark:hover:bg-red-950/30 font-semibold"
                         >
                             {currentText.logout}
                         </button>
@@ -172,7 +194,7 @@ const Navbar = () => {
                 ) : (
                     <div className="flex gap-2">
                         <Link to="/login" className="btn btn-sm btn-outline">{currentText.login}</Link>
-                        <Link to="/signup" className="btn btn-sm btn-primary rounded-2xl w-18 bg-purple-600 border-0 hover:bg-purple-700">{currentText.signup}</Link>
+                        <Link to="/signup" className="btn btn-sm btn-primary rounded-2xl w-18 bg-purple-600 border-0 hover:bg-purple-700 text-white">{currentText.signup}</Link>
                     </div>
                 )}
             </div>

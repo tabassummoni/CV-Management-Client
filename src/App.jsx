@@ -7,7 +7,7 @@ import LoginPage from './pages/LoginPage'
 import SignUp from './pages/SignUp'
 import NotFound from './pages/NotFound'
 import LoginSuccess from './pages/LoginSuccess'
-
+import Dashboard from './pages/Dashboard'
 function App() {
   return (
     <Router>
@@ -20,6 +20,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/login-success" element={<LoginSuccess />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </main>
       <Footer />
