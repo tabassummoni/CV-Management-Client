@@ -10,6 +10,7 @@ export default function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        
         if (!email || !password) {
             setError('Please fill in all fields');
             return;
@@ -20,7 +21,8 @@ export default function LoginPage() {
         }
         
         try {
-            const response = await fetch('/api/login', {
+        
+            const response = await fetch('http://localhost:5001/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -35,6 +37,13 @@ export default function LoginPage() {
             }
 
             console.log('Login successful:', data);
+            
+            // 🔒 jwt token for saving localStorage data
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+
+            
+            window.location.href = '/';
         } catch (err) {
             setError(err.message);
         }
@@ -58,9 +67,7 @@ export default function LoginPage() {
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Email Address
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                             <input
                                 type="email"
                                 value={email}
@@ -71,9 +78,7 @@ export default function LoginPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Password
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                             <input
                                 type="password"
                                 value={password}
@@ -93,9 +98,7 @@ export default function LoginPage() {
                                 />
                                 <span className="ml-2 text-sm text-gray-700">Remember me</span>
                             </label>
-                            <a href="#" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                                Forgot password?
-                            </a>
+                            <a href="#" className="text-sm text-purple-600 hover:text-purple-700 font-medium">Forgot password?</a>
                         </div>
 
                         <button
@@ -107,40 +110,28 @@ export default function LoginPage() {
                     </form>
 
                     <div className="relative my-6">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white text-gray-500">Or</span>
-                        </div>
+                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-300"></div></div>
+                        <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-500">Or</span></div>
                     </div>
 
                     <div className="space-y-3">
-                        <button className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition">
-                            Google
-                        </button>
-                        <button className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition">
-                            GitHub
+                        
+                        <button 
+                            type="button"
+                            onClick={() => window.location.href = 'http://localhost:5001/api/auth/google'}
+                            className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition"
+                        >
+                            Continue with Google
                         </button>
                     </div>
 
                     <p className="text-center text-gray-600 mt-6">
                         Don't have an account?{' '}
-                        <Link to="/signup" className="text-purple-600 hover:text-purple-700 font-semibold">
-                            Sign Up
-                        </Link>
+                        <Link to="/signup" className="text-purple-600 hover:text-purple-700 font-semibold">Sign Up</Link>
                     </p>
 
                     <p className="text-center text-gray-600 mt-4">
-                        <Link to="/" className="text-gray-600 hover:text-gray-700 font-medium">
-                            ← Back to Home
-                        </Link>
-                    </p>
-                </div>
-
-                <div className="text-center mt-8 text-white">
-                    <p className="text-sm opacity-90">
-                        By logging in, you agree to our Terms & Conditions
+                        <Link to="/" className="text-gray-600 hover:text-gray-700 font-medium">← Back to Home</Link>
                     </p>
                 </div>
             </div>

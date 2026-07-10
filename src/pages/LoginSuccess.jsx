@@ -1,25 +1,25 @@
 import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 export default function LoginSuccess() {
     const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
 
     useEffect(() => {
         const token = searchParams.get('token');
         if (token) {
             localStorage.setItem('token', token);
+            // go back in home page 
             window.location.href = '/';
         } else {
-            navigate('/login');
+            window.location.href = '/login';
         }
-    }, [searchParams, navigate]);
+    }, [searchParams]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center bg-base-200">
             <div className="text-center">
-                <div className="loading loading-spinner loading-lg text-purple-600 mb-4"></div>
-                <p className="text-gray-600 font-medium">সফলভাবে লগইন হয়েছে, ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600 mb-4 mx-auto"></div>
+                <p className="text-base-content font-medium">Logging in successfully, redirecting...</p>
             </div>
         </div>
     );

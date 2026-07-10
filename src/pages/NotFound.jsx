@@ -6,7 +6,7 @@ export default function NotFound() {
       <div className="text-center">
         <h1 className="text-9xl font-bold text-white mb-4">404</h1>
         <h2 className="text-4xl font-bold text-gray-200 mb-2">Page Not Found</h2>
-        <p className="text-xl text-gray-400 mb-8">এই পেজটি খুঁজে পাওয়া যায়নি</p>
+        <p className="text-xl text-gray-400 mb-8">The page you are looking for does not exist.</p>
         
         <div className="mb-8">
           <svg className="w-32 h-32 mx-auto text-gray-500 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -15,7 +15,7 @@ export default function NotFound() {
         </div>
 
         <Link to="/" className="btn btn-lg btn-primary bg-purple-600 border-0 hover:bg-purple-700">
-          Home এ ফিরে যান
+          Go Back Home 
         </Link>
       </div>
     </div>

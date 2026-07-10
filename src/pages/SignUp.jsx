@@ -14,6 +14,7 @@ export default function SignUp() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        
         if (!firstName || !lastName || !email || !password || !confirmPassword) {
             setError('Please fill in all fields');
             return;
@@ -40,7 +41,7 @@ export default function SignUp() {
         }
         
         try {
-            const response = await fetch('/api/signup', {
+            const response = await fetch('http://localhost:5001/api/auth/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -52,14 +53,30 @@ export default function SignUp() {
                 }),
             });
 
-            const data = await response.json();
+            const textData = await response.text();
+            let data = {};
+            if (textData) {
+                try {
+                    data = JSON.parse(textData);
+                } catch (e) {
+                    console.log("Response parsing error:", textData);
+                }
+            }
 
             if (!response.ok) {
                 throw new Error(data.error || 'Something went wrong');
             }
 
-            console.log('Signup successful:', data);
-            navigate('/');
+   
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                if (data.user) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                }
+                window.location.href = '/';
+            } else {
+                navigate('/login');
+            }
         } catch (err) {
             setError(err.message);
         }
@@ -76,75 +93,65 @@ export default function SignUp() {
                     </div>
 
                     {error && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
-                            {error}
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm font-semibold">
+                            ⚠️ {error}
                         </div>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    First Name
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
                                 <input
                                     type="text"
                                     value={firstName}
                                     onChange={(e) => setFirstName(e.target.value)}
                                     placeholder="First name"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-white text-gray-900 text-sm focus:ring-2 focus:ring-purple-600"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Last Name
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
                                 <input
                                     type="text"
                                     value={lastName}
                                     onChange={(e) => setLastName(e.target.value)}
                                     placeholder="Last name"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-white text-gray-900 text-sm focus:ring-2 focus:ring-purple-600"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Email Address
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter your email"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-white text-gray-900 text-sm focus:ring-2 focus:ring-purple-600"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Password
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                             <input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Enter your password"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition"
+                                placeholder="Min 6 characters"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-white text-gray-900 text-sm focus:ring-2 focus:ring-purple-600"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Confirm Password
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
                             <input
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                placeholder="Confirm your password"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition"
+                                placeholder="Confirm password"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-white text-gray-900 text-sm focus:ring-2 focus:ring-purple-600"
                             />
                         </div>
 
@@ -156,53 +163,36 @@ export default function SignUp() {
                                 className="w-4 h-4 text-purple-600 rounded focus:ring-2 focus:ring-purple-600"
                             />
                             <span className="ml-2 text-sm text-gray-700">
-                                I agree to the <a href="#" className="text-purple-600 hover:text-purple-700 font-medium">Terms & Conditions</a>
+                                I agree to the <span className="text-purple-600 hover:text-purple-700 font-medium cursor-pointer">Terms & Conditions</span>
                             </span>
                         </label>
 
                         <button
                             type="submit"
-                            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 rounded-lg hover:shadow-lg transition duration-300"
+                            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2.5 rounded-lg hover:shadow-lg transition duration-300 text-sm mt-2"
                         >
                             Sign Up
                         </button>
                     </form>
 
                     <div className="relative my-6">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white text-gray-500">Or</span>
-                        </div>
+                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-300"></div></div>
+                        <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-500">Or</span></div>
                     </div>
 
                     <div className="space-y-3">
-                        <button className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition">
-                            Google
-                        </button>
-                        <button className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition">
-                            GitHub
+                        <button 
+                            type="button"
+                            onClick={() => window.location.href = 'http://localhost:5001/api/auth/google'}
+                            className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition text-sm flex items-center justify-center bg-white"
+                        >
+                            🌐 Continue with Google
                         </button>
                     </div>
 
-                    <p className="text-center text-gray-600 mt-6">
+                    <p className="text-center text-gray-600 mt-6 text-sm">
                         Already have an account?{' '}
-                        <Link to="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
-                            Login
-                        </Link>
-                    </p>
-
-                    <p className="text-center text-gray-600 mt-4">
-                        <Link to="/" className="text-gray-600 hover:text-gray-700 font-medium">
-                            ← Back to Home
-                        </Link>
-                    </p>
-                </div>
-
-                <div className="text-center mt-8 text-white">
-                    <p className="text-sm opacity-90">
-                        By signing up, you agree to our Terms & Conditions
+                        <Link to="/login" className="text-purple-600 hover:text-purple-700 font-semibold">Login</Link>
                     </p>
                 </div>
             </div>

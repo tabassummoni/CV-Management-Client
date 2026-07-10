@@ -6,6 +6,7 @@ import About from './pages/About'
 import LoginPage from './pages/LoginPage'
 import SignUp from './pages/SignUp'
 import NotFound from './pages/NotFound'
+import LoginSuccess from './pages/LoginSuccess'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/login-success" element={<LoginSuccess />} />
         </Routes>
       </main>
       <Footer />
