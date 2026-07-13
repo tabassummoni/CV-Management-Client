@@ -4,175 +4,122 @@ import { useParams, useNavigate } from 'react-router-dom';
 const ViewCv = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [cv, setCv] = useState(null);
+  
+  const [cvData, setCvData] = useState({
+    id: null, title: '', version: 1, fullName: '', email: '', phone: '', ieltsScore: '', summary: '', skills: '', experience: '', education: ''
+  });
+
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  // লোকাল স্টোরেজ থেকে কারেন্ট ইউজার ডাটা
-  const user = JSON.parse(localStorage.getItem('user')) || { id: 1, name: 'Fouzia' };
-
-  // ব্যাকএন্ড থেকে নির্দিষ্ট সিভির ডাটা লোড করা (পোর্ট 5001)
   useEffect(() => {
-    fetch(`http://localhost:5001/api/cv/user/${user.id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        // যেহেতু আমাদের কারেন্ট এপিআই পুরো অ্যারে দেয়, আমরা নির্দিষ্ট আইডি-র সিভিটা খুঁজে নিচ্ছি
-        const currentCv = data.find((item) => item.id === parseInt(id));
-        if (currentCv) {
-          setCv(currentCv);
-        } else {
-          alert('CV not found!');
-          navigate('/dashboard');
-        }
+    fetch(`http://localhost:5001/api/cv/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setCvData({
+          id: data.id, title: data.title, version: data.version,
+          fullName: data.fullName || '', email: data.email || '', phone: data.phone || '',
+          ieltsScore: data.ieltsScore || '', summary: data.summary || '', skills: data.skills || '',
+          experience: data.experience || '', education: data.education || ''
+        });
       })
-      .catch((err) => console.error('Error fetching CV:', err))
+      .catch(err => console.error(err))
       .finally(() => setLoading(false));
-  }, [id, user.id, navigate]);
+  }, [id]);
 
-  // ইন-প্লেস এডিটিং এর জন্য ইনপুট চেঞ্জ হ্যান্ডেলার
-  const handleInPlaceChange = (field, value) => {
-    setCv({ ...cv, [field]: value });
-  };
+  const handleInputChange = (e) => setCvData({ ...cvData, [e.target.name]: e.target.value });
 
-  // স্যারের রিকোয়ারমেন্ট অনুযায়ী সিভির ইন-প্লেস এডিট সেভ করা
-  const handleSaveChange = async () => {
+  const handleSaveProfile = async () => {
     setIsSaving(true);
+    setErrorMsg('');
+
     try {
-      // ফিউচারে এখানে ব্যাকএন্ডের PUT/PATCH রাউট কানেক্ট হবে যা গ্লোবাল প্রোফাইল আপডেট করবে
-      alert('🎉 Original Profile Value Updated In-place!');
+      const response = await fetch(`http://localhost:5001/api/cv/${id}/inplace`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cvData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('🎉 Master profile synchronized seamlessly!');
+        if (data.cv) setCvData(prev => ({ ...prev, version: data.cv.version }));
+      } else if (response.status === 409) {
+        setErrorMsg('❌ Stale Data Session Conflict! Reloading page required.');
+        alert(data.error);
+      } else {
+        setErrorMsg(data.error);
+      }
     } catch (error) {
-      console.error('Error updating CV:', error);
+      setErrorMsg('Connection failure.');
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-900 text-slate-400 flex items-center justify-center animate-pulse">
-        📄 Loading CV Template and Attributes...
-      </div>
-    );
-  }
+  const getInputClass = (value, extra = '') => {
+    return `bg-transparent border-b focus:border-purple-500 focus:outline-none transition-all ${
+      !value ? 'border-red-500 text-red-400 placeholder-red-400/50 bg-red-500/5' : 'border-white/10 text-slate-200'
+    } ${extra}`;
+  };
+
+  if (loading) return <div className="min-h-screen bg-slate-900 text-slate-400 flex items-center justify-center">Generating CV Template...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-slate-100 p-4 md:p-12 font-sans">
-      
-      {/* অ্যাকশন ও নেভিগেশন হেডার বার */}
+    <div className="min-h-screen bg-slate-900 text-slate-100 p-8">
       <div className="max-w-4xl mx-auto mb-6 flex justify-between items-center">
-        <button onClick={() => navigate('/dashboard')} className="btn btn-sm btn-outline border-white/20 text-slate-300 rounded-xl">
-          ⬅️ Back to Dashboard
-        </button>
-        <button 
-          onClick={handleSaveChange} 
-          className={`btn btn-sm btn-accent bg-emerald-500 hover:bg-emerald-600 text-slate-900 border-none rounded-xl px-5 font-bold ${isSaving ? 'loading' : ''}`}
-        >
-          {isSaving ? 'Saving Changes...' : '💾 Save Profile Changes'}
-        </button>
+        <button onClick={() => navigate('/dashboard')} className="btn btn-sm btn-outline text-slate-300">⬅️ Dashboard</button>
+        <div className="flex items-center gap-4">
+          <span className="text-xs bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-xl border border-purple-500/30">Version: {cvData.version}</span>
+          <button onClick={handleSaveProfile} disabled={isSaving} className="btn btn-sm bg-emerald-500 text-slate-900 font-bold">{isSaving ? 'Saving...' : '💾 Save System Changes'}</button>
+        </div>
       </div>
 
-      {/* 📄 প্রফেশনাল গ্লাস-মর্ফিজম রেজুমে শিট */}
-      <div className="max-w-4xl mx-auto backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl shadow-2xl p-8 md:p-12 space-y-8 relative">
-        
-        {/* টপ হেডার: নাম এবং বেসিক ইনফো */}
-        <div className="border-b border-white/10 pb-6">
-          <input 
-            type="text" 
-            value={cv.fullName || ''} 
-            onChange={(e) => handleInPlaceChange('fullName', e.target.value)}
-            className="text-3xl md:text-4xl font-black bg-transparent border-b border-transparent hover:border-white/20 focus:border-purple-500 focus:outline-none w-full text-slate-100 tracking-wide"
-            placeholder="Your Full Name"
-          />
-          <p className="text-purple-400 text-sm font-semibold uppercase tracking-wider mt-2">
-            Position: {cv.positionTitle || 'Frontend Developer (Template)'}
-          </p>
-        </div>
+      {errorMsg && <div className="max-w-4xl mx-auto mb-4 alert alert-error text-xs">{errorMsg}</div>}
 
-        {/* কন্টাক্ট ইনফো গ্রিড */}
+      <div className="max-w-4xl mx-auto bg-slate-800 border border-white/10 rounded-2xl p-8 space-y-6">
         <div>
-          <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3">Contact & Credentials</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-900/40 border border-white/5 p-4 rounded-xl">
-            <div>
-              <span className="text-xs text-slate-400 block">Email Address</span>
-              <input 
-                type="email" 
-                value={cv.email || ''} 
-                onChange={(e) => handleInPlaceChange('email', e.target.value)}
-                className="bg-transparent border-b border-transparent hover:border-white/20 focus:border-purple-500 focus:outline-none text-sm w-full font-medium mt-1"
-              />
-            </div>
-            <div>
-              <span className="text-xs text-slate-400 block">Phone Number</span>
-              <input 
-                type="text" 
-                value={cv.phone || ''} 
-                onChange={(e) => handleInPlaceChange('phone', e.target.value)}
-                className="bg-transparent border-b border-transparent hover:border-white/20 focus:border-purple-500 focus:outline-none text-sm w-full font-medium mt-1"
-                placeholder="Not Provided"
-              />
-            </div>
-
-            {/* 🎯 IELTS Score: স্যারের শর্ত অনুযায়ী ফাঁকা থাকলে লাল ব্যাকগ্রাউন্ডে ইন-লাইন এডিট হবে */}
-            <div>
-              <span className="text-xs text-indigo-300 font-semibold block">IELTS Score</span>
-              <input 
-                type="text" 
-                value={cv.ieltsScore || ''} 
-                onChange={(e) => handleInPlaceChange('ieltsScore', e.target.value)}
-                placeholder="Click to fill empty field"
-                className={`text-sm w-full font-bold mt-1 px-2 py-0.5 rounded transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 bg-transparent ${
-                  !cv.ieltsScore 
-                    ? 'text-red-400 bg-red-500/10 border border-red-500/30 placeholder-red-400/50' 
-                    : 'text-accent border-b border-transparent hover:border-white/20'
-                }`}
-              />
-            </div>
-          </div>
+          <label className="text-xs text-slate-400 block">Full Name</label>
+          <input type="text" name="fullName" value={cvData.fullName} onChange={handleInputChange} className={getInputClass(cvData.fullName, "text-2xl font-bold w-full pb-1")} placeholder="[Empty Name]" />
         </div>
 
-        {/* প্রফেশনাল সামারি */}
-        <div>
-          <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">Professional Summary</h4>
-          <textarea 
-            value={cv.summary || ''} 
-            onChange={(e) => handleInPlaceChange('summary', e.target.value)}
-            className="w-full bg-transparent border border-transparent hover:border-white/10 focus:border-purple-500 focus:bg-slate-900/30 focus:outline-none text-sm text-slate-300 leading-relaxed p-2 rounded-xl h-24 resize-none"
-            placeholder="Describe your career goals..."
-          />
-        </div>
-
-        {/* স্কিলস সেকশন */}
-        <div>
-          <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">Core Expertise & Skills</h4>
-          <input 
-            type="text" 
-            value={cv.skills || ''} 
-            onChange={(e) => handleInPlaceChange('skills', e.target.value)}
-            className="w-full bg-transparent border-b border-transparent hover:border-white/20 focus:border-purple-500 focus:outline-none text-sm text-slate-200 p-1"
-            placeholder="React, Tailwind, Node.js..."
-          />
-        </div>
-
-        {/* এক্সপেরিয়েন্স ও এডুকেশন গ্রিড */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-white/10">
+        <div className="grid grid-cols-3 gap-6 bg-slate-900/50 p-4 rounded-xl">
           <div>
-            <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">Professional Experience</h4>
-            <textarea 
-              value={cv.experience || ''} 
-              onChange={(e) => handleInPlaceChange('experience', e.target.value)}
-              className="w-full bg-transparent border border-transparent hover:border-white/10 focus:border-purple-500 focus:bg-slate-900/30 focus:outline-none text-sm text-slate-300 leading-relaxed p-2 rounded-xl h-32 resize-none"
-            />
+            <span className="text-xs text-slate-400 block">Email</span>
+            <input type="email" name="email" value={cvData.email} onChange={handleInputChange} className={getInputClass(cvData.email, "w-full text-sm")} placeholder="[Empty Email]" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">Education & Training</h4>
-            <textarea 
-              value={cv.education || ''} 
-              onChange={(e) => handleInPlaceChange('education', e.target.value)}
-              className="w-full bg-transparent border border-transparent hover:border-white/10 focus:border-purple-500 focus:bg-slate-900/30 focus:outline-none text-sm text-slate-300 leading-relaxed p-2 rounded-xl h-32 resize-none"
-            />
+            <span className="text-xs text-slate-400 block">Phone</span>
+            <input type="text" name="phone" value={cvData.phone} onChange={handleInputChange} className={getInputClass(cvData.phone, "w-full text-sm")} placeholder="[Empty Phone]" />
+          </div>
+          <div>
+            <span className="text-xs text-indigo-300 block">IELTS Score</span>
+            <input type="text" name="ieltsScore" value={cvData.ieltsScore} onChange={handleInputChange} className={getInputClass(cvData.ieltsScore, "w-full text-sm font-bold text-indigo-300")} placeholder="[Empty IELTS]" />
           </div>
         </div>
 
+        <div>
+          <h4 className="text-xs text-indigo-400 uppercase font-bold mb-1">Professional Summary</h4>
+          <textarea name="summary" value={cvData.summary} onChange={handleInputChange} className={`w-full bg-slate-900/40 text-sm p-3 rounded-xl h-20 border ${!cvData.summary ? 'border-red-500 text-red-400 bg-red-500/5' : 'border-white/10 text-slate-300'}`} placeholder="[Summary Empty]" />
+        </div>
+
+        <div>
+          <h4 className="text-xs text-indigo-400 uppercase font-bold mb-1">Skills</h4>
+          <input type="text" name="skills" value={cvData.skills} onChange={handleInputChange} className={getInputClass(cvData.skills, "w-full text-sm p-1")} placeholder="[Skills Empty]" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/10">
+          <div>
+            <h4 className="text-xs text-indigo-400 uppercase font-bold mb-1">Experience</h4>
+            <textarea name="experience" value={cvData.experience} onChange={handleInputChange} className={`w-full bg-slate-900/40 text-sm p-3 rounded-xl h-24 border ${!cvData.experience ? 'border-red-500 text-red-400 bg-red-500/5' : 'border-white/10 text-slate-300'}`} placeholder="[Experience Empty]" />
+          </div>
+          <div>
+            <h4 className="text-xs text-indigo-400 uppercase font-bold mb-1">Education</h4>
+            <textarea name="education" value={cvData.education} onChange={handleInputChange} className={`w-full bg-slate-900/40 text-sm p-3 rounded-xl h-24 border ${!cvData.education ? 'border-red-500 text-red-400 bg-red-500/5' : 'border-white/10 text-slate-300'}`} placeholder="[Education Empty]" />
+          </div>
+        </div>
       </div>
     </div>
   );
