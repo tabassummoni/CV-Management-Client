@@ -12,75 +12,85 @@ export default function SignUp() {
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        
-        if (!firstName || !lastName || !email || !password || !confirmPassword) {
-            setError('Please fill in all fields');
-            return;
-        }
-        
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setError('Please enter a valid email');
-            return;
-        }
+    e.preventDefault();
+    setError('');
+    
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+        setError('Please fill in all fields');
+        return;
+    }
+    
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setError('Please enter a valid email');
+        return;
+    }
 
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters');
-            return;
-        }
-        
-        if (password !== confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
+    if (password.length < 6) {
+        setError('Password must be at least 6 characters');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        return;
+    }
 
-        if (!agreeTerms) {
-            setError('Please agree to the Terms & Conditions');
-            return;
-        }
+    if (!agreeTerms) {
+        setError('Please agree to the Terms & Conditions');
+        return;
+    }
+    
+    try {
+        const fullName = `${firstName} ${lastName}`;
         
-        try {
-            const response = await fetch('http://localhost:5001/api/auth/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: `${firstName} ${lastName}`,
-                    email,
-                    password,
-                }),
-            });
+        const response = await fetch('http://localhost:5001/api/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: fullName,
+                email,
+                password,
+            }),
+        });
 
-            const textData = await response.text();
-            let data = {};
-            if (textData) {
-                try {
-                    data = JSON.parse(textData);
-                } catch (e) {
-                    console.log("Response parsing error:", textData);
-                }
+        const textData = await response.text();
+        let data = {};
+        if (textData) {
+            try {
+                data = JSON.parse(textData);
+            } catch (e) {
+                console.log("Response parsing error:", textData);
             }
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Something went wrong');
-            }
-
-   
-            if (data.token) {
-                localStorage.setItem('token', data.token);
-                if (data.user) {
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                }
-                window.location.href = '/';
-            } else {
-                navigate('/login');
-            }
-        } catch (err) {
-            setError(err.message);
         }
-    };
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Something went wrong');
+        }
+
+        console.log("Signup successful response:", data);
+
+        // 💡 যদি ব্যাকএন্ড টোকেন পাঠায় (তার মানে সরাসরি লগইন হয়ে যাচ্ছে)
+        if (data.token) {
+            localStorage.setItem('token', data.token);
+            
+            // 🔒 সেফটি মেকানিজম: ব্যাকএন্ড যদি ডিরেক্ট user অবজেক্ট নাও পাঠায়, 
+            // আমরা ফ্রন্টএন্ডে জেনারেট করে নিচ্ছি যেন সেশন ফাঁকা না হয়ে যায়।
+            const fallbackUser = data.user || { name: fullName, email: email };
+            localStorage.setItem('user', JSON.stringify(fallbackUser));
+            
+            // 💡 ফিক্স: হার্ড রিলোড বাদ দিয়ে রিঅ্যাক্ট রাউটার দিয়ে স্মুথলি ড্যাশবোর্ডে পুশ করা
+            navigate('/dashboard'); 
+        } else {
+            // যদি ব্যাকএন্ড টোকেন না পাঠায়, তবে ইউজারকে লগইন পেজে পাঠিয়ে দেওয়া সবচেয়ে নিরাপদ
+            alert("Registration successful! Please login to your account.");
+            navigate('/login');
+        }
+    } catch (err) {
+        setError(err.message);
+    }
+};
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center px-4 py-12">

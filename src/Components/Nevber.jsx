@@ -48,8 +48,8 @@ const Navbar = () => {
     };
 
     const text = {
-        en: { logo: '📄 CV Management', home: 'Home', about: 'About', templates: 'Templates', contact: 'Contact', searchPlaceholder: 'Search anything...', logout: 'Logout', login: 'Login', signup: 'SignUp', dashboard: 'Dashboard' },
-        sp: { logo: '📄 Gestión de CV', home: 'Inicio', about: 'Sobre nosotros', templates: 'Plantillas', contact: 'Contacto', searchPlaceholder: 'Buscar todo...', logout: 'Cerrar sesión', login: 'Acceso', signup: 'Inscribirse', dashboard: 'Tablero' }
+        en: { logo: '📄 CV Management', home: 'Home', about: 'About', templates: 'Templates', contact: 'Contact', allcv: 'All CVs', searchPlaceholder: 'Search anything...', logout: 'Logout', login: 'Login', signup: 'SignUp', dashboard: 'Dashboard' },
+        sp: { logo: '📄 Gestión de CV', home: 'Inicio', about: 'Sobre nosotros', templates: 'Plantillas', contact: 'Contacto', allcv: 'Todos los CVs', searchPlaceholder: 'Buscar todo...', logout: 'Cerrar sesión', login: 'Acceso', signup: 'Inscribirse', dashboard: 'Tablero' }
     };
 
     const currentText = text[lang] || text.en;
@@ -91,13 +91,18 @@ const Navbar = () => {
 
             <form onSubmit={handleSearch} className="flex-1 mt-4 max-w-md mx-4">
                 <div className="relative w-full">
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder={currentText.searchPlaceholder}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none bg-base-200 text-base-content transition text-sm"
-                    />
+                    <input type="text"
+                            value={searchQuery}
+    onChange={(e) => {
+        const value = e.target.value;
+        setSearchQuery(value);
+        if (value.trim()) {
+            navigate(`/search?q=${encodeURIComponent(value)}`);
+        }
+    }}
+    placeholder={currentText.searchPlaceholder}
+    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none bg-base-200 text-base-content transition text-sm"
+                                />
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -112,7 +117,9 @@ const Navbar = () => {
                     <li><Link to="/about">{currentText.about}</Link></li>
                     <li><Link to="/templates">{currentText.templates}</Link></li>
                     <li><Link to="/contact">{currentText.contact}</Link></li>
-  
+                    <li><Link to="/all-cvs">{currentText.allcv}</Link></li>
+                      
+
                     {isLoggedIn && (
                         <li>
                             <Link to="/dashboard" className="text-purple-600 font-bold dark:text-purple-400">

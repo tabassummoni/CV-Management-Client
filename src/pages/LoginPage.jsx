@@ -1,53 +1,51 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        
-        if (!email || !password) {
-            setError('Please fill in all fields');
-            return;
+ const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    
+    if (!email || !password) {
+        setError('Please fill in all fields');
+        return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setError('Please enter a valid email');
+        return;
+    }
+    
+    try {
+        const response = await fetch('http://localhost:5001/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Something went wrong');
         }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setError('Please enter a valid email');
-            return;
-        }
+
+        console.log('Login successful:', data);
         
-        try {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        navigate('/'); 
         
-            const response = await fetch('http://localhost:5001/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Something went wrong');
-            }
-
-            console.log('Login successful:', data);
-            
-            // 🔒 jwt token for saving localStorage data
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-
-            
-            window.location.href = '/';
-        } catch (err) {
-            setError(err.message);
-        }
-    };
+    } catch (err) {
+        setError(err.message);
+    }
+};
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center px-4 py-12">

@@ -9,12 +9,26 @@ import NotFound from './pages/NotFound'
 import LoginSuccess from './pages/LoginSuccess'
 import Dashboard from './pages/Dashboard'
 import ViewCv from './pages/ViewCv'
+import Templates from './pages/Tamplates';
+import Contact from './pages/Contact';
+import Search from './pages/Search';
+
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  const user = localStorage.getItem('user');
+const token = localStorage.getItem('token');
+const userRaw = localStorage.getItem('user');
 
-  if (!token || !user) {
+  if (!token || !userRaw) {
+    return <Navigate to="/login" replace />;
+  }
+
+  try {
+    const parsedUser = JSON.parse(userRaw);
+    if (!parsedUser || !parsedUser.email) {
+      return <Navigate to="/login" replace />;
+    }
+  } catch (error) {
+    console.error("🚨 App Guard Auth Error: Invalid user format in localStorage");
     return <Navigate to="/login" replace />;
   }
 
@@ -33,6 +47,9 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/login-success" element={<LoginSuccess />} />
+          <Route path="/templates" element={<Templates />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/Search" element={<Search />} />
           
           <Route 
             path="/dashboard" 
@@ -42,6 +59,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
           <Route 
             path="/view-cv/:id" 
             element={
@@ -57,4 +75,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

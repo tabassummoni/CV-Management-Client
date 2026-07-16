@@ -6,10 +6,17 @@ export default function LoginSuccess() {
 
     useEffect(() => {
         const token = searchParams.get('token');
-        if (token) {
+        const userParam = searchParams.get('user');
+
+        if (token && userParam) {
             localStorage.setItem('token', token);
-            // go back in home page 
-            window.location.href = '/';
+            try {
+                const user = JSON.parse(decodeURIComponent(userParam));
+                localStorage.setItem('user', JSON.stringify(user));
+            } catch (e) {
+                console.error("Failed to parse user data from URL", e);
+            }
+            window.location.href = '/dashboard';
         } else {
             window.location.href = '/login';
         }

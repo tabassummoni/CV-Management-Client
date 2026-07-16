@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [cvs, setCvs] = useState([]);
   const [positions, setPositions] = useState([]); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedCvIds, setSelectedCvIds] = useState([]);
+  const user = JSON.parse(localStorage.getItem('user')) 
 
   const [formData, setFormData] = useState({
     title: '', 
     positionId: '',
-    fullName: '', 
-    email: '', 
+    fullName: user?.name || '', 
+    email: user?.email || '', 
     phone: '', 
     summary: '', 
     skills: '', 
@@ -22,32 +24,63 @@ const Dashboard = () => {
     education: ''
   });
 
-  const user = JSON.parse(localStorage.getItem('user')) || { id: 1, name: 'Fouzia' };
+  const fetchCvs = async () => {
+  if (!user?.id) return;
+  try {
+    const response = await fetch(`http://localhost:5001/api/cv/user/${user.id}`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        const formattedCvs = data.map(cv => ({
+          ...cv,
+          fullName: cv.fullName || cv.user?.name || '',
+          title: cv.title || cv.position?.title || ''
+        }));
+        setCvs(formattedCvs);
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 
-  const fetchCvs = () => {
-    fetch(`http://localhost:5001/api/cv/user/${user.id}`)
-      .then(res => res.json())
-      .then(data => { if (Array.isArray(data)) setCvs(data); });
-  };
-
-  const fetchPositions = () => {
-    fetch('http://localhost:5001/api/cv/positions/all')
-      .then(res => res.json())
-      .then(data => { 
+  const fetchPositions = async () => {
+    try {
+      const response = await fetch('http://localhost:5001/api/cv/positions/all');
+      if (response.ok) {
+        const data = await response.json();
         if (Array.isArray(data)) {
           setPositions(data);
           if (data.length > 0) {
             setFormData(prev => ({ ...prev, positionId: data[0].id }));
           }
         }
-      })
-      .catch(err => console.error("Error loading positions:", err));
+      } else {
+        console.error("Failed to fetch positions");
+      }
+    } catch (error) {
+      console.error("Error loading positions:", error);
+    }
   };
 
   useEffect(() => {
-    fetchCvs();
-    fetchPositions(); 
-  }, [user.id]);
+    if (user?.id) {
+      fetchCvs();
+      fetchPositions(); 
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (location.state?.openCreateCvModal) {
+      setIsModalOpen(true);
+    }
+  }, [location.state]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -66,16 +99,29 @@ const Dashboard = () => {
         body: JSON.stringify({ 
           ...formData, 
           userId: user.id,
-          positionId: parseInt(formData.positionId) 
+          positionId: Number(formData.positionId) 
         })
       });
       
       if (response.ok) {
         setIsModalOpen(false);
         setFormData(prev => ({
-          title: '', positionId: positions[0]?.id || '', fullName: '', email: '', phone: '', summary: '', skills: '', ieltsScore: '', experience: '', education: ''
+          title: '', 
+          positionId: positions[0]?.id || '', 
+          fullName: user?.name || '', 
+          email: user?.email || '', 
+          phone: '', 
+          summary: '', 
+          skills: '', 
+          ieltsScore: '', 
+          experience: '', 
+          education: ''
         }));
         fetchCvs();
+      }
+      else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error || 'Something went wrong'}`);
       }
     } catch (error) {
       console.error(error);
@@ -91,8 +137,8 @@ const Dashboard = () => {
   const handleBulkDelete = async () => {
     if (selectedCvIds.length === 0) return;
     if (window.confirm('Delete selected CVs?')) {
-      const res = await fetch('http://localhost:5001/api/cv/bulk-delete', {
-        method: 'POST',
+      const res = await fetch('http://localhost:5001/api/cv/bulk-delete', { // Correct endpoint
+        method: 'POST', // Correct HTTP method
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedCvIds })
       });
@@ -107,7 +153,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-slate-900 text-slate-100 p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Welcome, {user.name}</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-5 mr-35 ">
           <button onClick={() => setIsModalOpen(true)} className="btn btn-sm btn-primary">➕ Create CV</button>
           <button onClick={() => navigate(`/view-cv/${selectedCvIds[0]}`)} disabled={selectedCvIds.length !== 1} className="btn btn-sm btn-info text-white">👁️ View</button>
           <button onClick={handleBulkDelete} disabled={selectedCvIds.length === 0} className="btn btn-sm btn-error text-white">🗑️ Delete</button>
@@ -115,22 +161,25 @@ const Dashboard = () => {
       </div>
 
       <div className="overflow-x-auto bg-slate-800 rounded-xl border border-white/10">
-        <table className="table w-full">
+        <table className="table w-full text-center text-slate-200">
+         
           <thead>
             <tr className="bg-slate-700/50 text-slate-300">
               <th className="w-12 text-center">Select</th>
               <th>CV Title</th>
               <th>Target Position Template</th>
               <th>IELTS Score</th>
+              <th>Created At</th>
             </tr>
           </thead>
           <tbody>
             {cvs.map(cv => (
               <tr key={cv.id} className="hover:bg-white/5 border-b border-white/5">
                 <td className="text-center"><input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={selectedCvIds.includes(cv.id)} onChange={() => handleSelectCv(cv.id)} /></td>
-                <td className="font-semibold text-purple-400 cursor-pointer hover:underline" onClick={() => navigate(`/view-cv/${cv.id}`)}>{cv.title}</td>
+                <td className="font-semibold text-purple-400 cursor-pointer hover:underline" onClick={() => navigate(`/view-cv/${cv.id}`)}>{cv.title || 'Untitled CV'}</td>
                 <td><span className="badge badge-ghost text-xs font-semibold">{cv.positionTitle}</span></td>
                 <td>{cv.ieltsScore || <span className="text-red-400 font-bold">Empty</span>}</td>
+                <td>{new Date(cv.createdAt).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>
@@ -138,14 +187,14 @@ const Dashboard = () => {
       </div>
 
       {isModalOpen && (
-        <div className="modal modal-open mt-5 ">
+        <div className="modal modal-open mt-5  text-center flex items-center justify-center   ">
           <div className="modal-box bg-slate-800/95 rounded-4xl backdrop-blur-sm border border-white/10 max-w-4xl text-slate-200 shadow-2xl shadow-purple-500/10 p-0">
             <div className="p-6 sm:p-8">
             <h3 className="font-bold text-2xl mb-1 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Create a New CV</h3>
             <p className="text-sm text-slate-400 mb-6">Fill in the details below to generate a new CV based on a template.</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6  sm:p-8">
+            <form onSubmit={handleSubmit} className="p-6  ">
               <div className="space-y-6">
               
               <div>
@@ -177,7 +226,7 @@ const Dashboard = () => {
                     </div>
                    <div>
                      <label className="label text-[16px] text-slate-400 font-medium">Professional Summary</label>
-                    <textarea name="summary" placeholder=" Summary .......azaq7" className="textarea textarea-bordered w-full border border-b-gray-600 bg-slate-800/50 border-slate-600 rounded-xl text-sm h-20 focus:border-purple-500 transition-all" value={formData.summary} onChange={handleChange} />
+                    <textarea name="summary" placeholder=" Summary ......." className="textarea textarea-bordered w-full border border-b-gray-600 bg-slate-800/50 border-slate-600 rounded-xl text-sm h-20 focus:border-purple-500 transition-all" value={formData.summary} onChange={handleChange} />
                     </div>
                     <div>
                          <label className="label text-[16px] text-slate-400 font-medium">Work Experience</label>
@@ -194,7 +243,7 @@ const Dashboard = () => {
                   <h4 className="text-sm font-semibold text-slate-400 border-b border-white/80 pb-2 mb-4">Contact Details</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="form-control w-full">
-                      <label className="label text-xs text-slate-400 font-medium">Email *</label>
+                      <label className="label text-xs text-slate-400 font-medium">Email </label>
                       <input type="email" name="email" placeholder="your.email@example.com" className="input input-bordered border border-b-gray-600 w-full bg-slate-800/50 border-slate-600 rounded-xl text-sm focus:border-purple-500 transition-all" value={formData.email} onChange={handleChange} required />
                     </div>
                     <div className="form-control w-full">
