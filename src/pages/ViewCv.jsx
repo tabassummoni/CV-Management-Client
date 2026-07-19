@@ -1,70 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown'; 
+import ReactMarkdown from 'react-markdown';
 
-const useDebounce = (callback, delay) => {
-  const [timeoutId, setTimeoutId] = useState(null);
+function useDebounce(callback, delay) {
+  const [debouncedCallback, setDebouncedCallback] = useState(() => callback);
 
-  return (...args) => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    const newTimeoutId = setTimeout(() => callback(...args), delay);
-    setTimeoutId(newTimeoutId);
-  };
-};
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedCallback(() => callback);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [callback, delay]);
+
+  return useCallback((...args) => debouncedCallback(...args), [debouncedCallback]);
+}
 
 const ViewCv = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('all'); 
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const [cvData, setCvData] = useState({
     id: null,
     title: '',
-    version: 1, 
+    version: 1,
     fullName: '',
     email: '',
     phone: '',
-    ieltsScore: '', 
+    ieltsScore: '',
     summary: '',
     skills: '',
     experience: '',
     education: '',
+    projects: '',
     positionTitle: '',
-    projects: []
+    tailoredProjects: []
   });
 
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
     fetch(`http://localhost:5001/api/cv/${id}`)
       .then(res => res.json())
       .then(data => {
-        setCvData({
-          id: data.id,
-          title: data.title || '',
-          version: data.version || 1,
-          fullName: data.fullName || '', 
-          email: data.email || '', 
-          phone: data.phone || '',
-          ieltsScore: data.ieltsScore || '', 
-          summary: data.summary || '', 
-          skills: data.skills || '',
-          experience: data.experience || '', 
-          education: data.education || '',
-          positionTitle: data.positionTitle || 'Frontend Developer Template',
-          projects: data.projects || []
-        });
+        setCvData(prev => ({ ...prev, ...data }));
       })
       .catch(err => console.error("Error loading CV:", err))
       .finally(() => setLoading(false));
   }, [id]);
 
   const handleFieldChange = async (field, value) => {
-    // Optimistically update the UI
     setIsSaving(true);
     setErrorMsg('');
 
@@ -82,12 +73,9 @@ const ViewCv = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Update version from server response
-        if (data.cv) setCvData(prev => ({ ...prev, version: data.cv.version, [field]: data.cv[field] }));
+        if (data.cv) setCvData(prev => ({ ...prev, ...data.cv }));
       } else {
-        // If save fails, show error and revert UI change
         setErrorMsg(`Failed to save ${field}: ${data.error || 'Unknown error'}`);
-        // Note: For a better UX, you might want to refetch the original data here
       }
     } catch (error) {
       setErrorMsg('Connection failure.');
@@ -112,9 +100,13 @@ const ViewCv = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-8 font-sans">
-      
+
       <div className="max-w-4xl mx-auto mb-6 flex justify-between items-center">
-        <button onClick={() => navigate('/dashboard')} className="btn btn-sm btn-outline text-slate-300 rounded-xl">⬅️ Dashboard</button>
+        <button
+          onClick={() => navigate(user?.role === 'ADMIN' ? '/admin-dashboard' : '/dashboard')}
+          className="btn btn-sm btn-outline text-slate-300 rounded-xl">
+          ⬅️ Dashboard
+        </button>
         <div className="flex items-center gap-4">
           <span className="text-xs bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-xl border border-purple-500/30">Version: {cvData.version}</span>
           <button disabled={isSaving} className="btn btn-sm bg-emerald-500 text-slate-900 font-bold rounded-xl px-4">
@@ -126,15 +118,13 @@ const ViewCv = () => {
       {errorMsg && <div className="max-w-4xl mx-auto mb-4 alert alert-error text-xs rounded-xl">{errorMsg}</div>}
 
       <div className="max-w-4xl mx-auto bg-slate-800 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-        
+
         <div className="flex bg-slate-950/60 border-b border-white/10 overflow-x-auto patches-nav">
           <button onClick={() => setActiveTab('all')} className={`px-6 py-4 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap ${activeTab === 'all' ? 'border-purple-500 text-purple-400 bg-white/5' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>📋 Full CV View</button>
-          <button onClick={() => setActiveTab('contact')} className={`px-6 py-4 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap ${activeTab === 'contact' ? 'border-purple-500 text-purple-400 bg-white/5' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>👤 Contact Info</button>
-          <button onClick={() => setActiveTab('projects')} className={`px-6 py-4 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap ${activeTab === 'projects' ? 'border-purple-500 text-purple-400 bg-white/5' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>🚀 Tailored Projects ({cvData.projects.length})</button>
         </div>
 
         <div className="p-6 md:p-10 space-y-8">
-          
+
           <div className="pb-2 border-b border-white/5 flex justify-between items-center">
             <h2 className="text-xl font-black text-slate-100">CV Title: {cvData.title}</h2>
             <span className="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-3 py-1 rounded-full font-bold">
@@ -184,44 +174,13 @@ const ViewCv = () => {
                   <textarea name="education" value={cvData.education} onChange={handleInputChange} className="w-full bg-slate-900/60 border border-white/20 rounded-xl p-3 h-28 text-sm text-slate-200 focus:border-purple-500 focus:outline-none transition-all mt-1 resize-none" placeholder="University, Degrees..." />
                 </div>
               </div>
+
+              <div>
+                <label className="text-xs text-slate-400 uppercase font-bold tracking-wider block">About Your Projects</label>
+                <textarea name="projects" value={cvData.projects} onChange={handleInputChange} className="w-full bg-slate-900/60 border border-white/20 rounded-xl p-3 h-28 text-sm text-slate-200 focus:border-purple-500 focus:outline-none transition-all mt-1 resize-none" placeholder="Describe your projects..." />
+              </div>
             </div>
           )}
-
-          {(activeTab === 'all' || activeTab === 'projects') && (
-            <div className="pt-6 border-t border-white/10 space-y-6">
-              <h4 className="text-xs text-purple-400 uppercase font-bold tracking-wider">🚀 Dynamically Tailored Projects</h4>
-              
-              {cvData.projects.length === 0 ? (
-                <p className="text-xs text-slate-500 italic bg-slate-900/30 p-4 rounded-xl border border-dashed border-white/5">
-                  No matching projects found with the required technology tags in your profile.
-                </p>
-              ) : (
-                <div className="space-y-6">
-                  {cvData.projects.map(project => (
-                    <div key={project.id} className="bg-slate-900/40 border border-white/5 p-5 rounded-2xl shadow-md space-y-3">
-                      <div className="flex justify-between items-start">
-                        <h5 className="text-sm font-bold text-slate-100">{project.name}</h5>
-                        <span className="text-[10px] text-slate-400 bg-slate-950/60 px-2.5 py-1 rounded-md font-mono">{project.period}</span>
-                      </div>
-
-                      <div className="text-xs text-slate-300 prose prose-invert max-w-none bg-slate-950/30 p-4 rounded-xl border border-white/5 leading-relaxed">
-                        <ReactMarkdown>{project.description}</ReactMarkdown>
-                      </div>
-
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {project.tags && project.tags.split(',').map((tag, i) => (
-                          <span key={i} className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                            {tag.trim()}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
         </div>
       </div>
     </div>

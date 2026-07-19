@@ -6,6 +6,7 @@ const Search = () => {
   const navigate = useNavigate();
   const query = searchParams.get('q') || '';
   
+  const user = JSON.parse(localStorage.getItem('user'));
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -33,12 +34,12 @@ const Search = () => {
             Found {searchResults.length} profiles matching keyword via consistent lookup.
           </p>
         </div>
-        <button onClick={() => navigate('/dashboard')} className="btn btn-sm btn-outline text-slate-300 rounded-xl">
+        <button onClick={() => navigate(user?.role === 'ADMIN' ? '/admin-dashboard' : '/dashboard')} className="btn btn-sm btn-outline text-slate-300 rounded-xl">
           ⬅️ Back to Dashboard
         </button>
       </div>
 
-      {/* ⚠️ পাভেলের রিকোয়ারমেন্ট: নো গ্যালারি, প্রপার ক্লীন টেবিল রিপ্রেজেন্টেশন */}
+
       <div className="max-w-5xl mx-auto overflow-x-auto bg-slate-800 rounded-2xl border border-white/10 shadow-2xl">
         {loading ? (
           <div className="text-center py-12 text-sm text-slate-400 animate-pulse">Scanning full-text indices...</div>

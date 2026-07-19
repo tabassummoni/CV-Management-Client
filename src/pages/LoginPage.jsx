@@ -8,44 +8,50 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
- const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    
-    if (!email || !password) {
-        setError('Please fill in all fields');
-        return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        setError('Please enter a valid email');
-        return;
-    }
-    
-    try {
-        const response = await fetch('http://localhost:5001/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'Something went wrong');
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        
+        if (!email || !password) {
+            setError('Please fill in all fields');
+            return;
         }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setError('Please enter a valid email');
+            return;
+        }
+        
+        try {
+            const response = await fetch('http://localhost:5001/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-        console.log('Login successful:', data);
-        
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/'); 
-        
-    } catch (err) {
-        setError(err.message);
-    }
-};
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Something went wrong');
+            }
+
+            console.log('Login successful:', data);
+            
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+                        if (data.user?.role === 'ADMIN') {
+                navigate('/admin-dashboard');
+            } else if (data.user?.role === 'RECRUITER') {
+                navigate('/recruiter/dashboard');
+            } else {
+                navigate('/'); 
+            }            
+            
+        } catch (err) {
+            setError(err.message);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center px-4 py-12">
@@ -71,7 +77,7 @@ export default function LoginPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter your email"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition bg-white text-gray-900"
                             />
                         </div>
 
@@ -82,7 +88,7 @@ export default function LoginPage() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Enter your password"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition bg-white text-gray-900"
                             />
                         </div>
 
@@ -92,7 +98,7 @@ export default function LoginPage() {
                                     type="checkbox"
                                     checked={rememberMe}
                                     onChange={(e) => setRememberMe(e.target.checked)}
-                                    className="w-4 h-4 text-purple-600 rounded focus:ring-2 focus:ring-purple-600"
+                                    className="w-4 h-4 text-purple-600 rounded focus:ring-2 focus:ring-purple-600 bg-white"
                                 />
                                 <span className="ml-2 text-sm text-gray-700">Remember me</span>
                             </label>
@@ -113,11 +119,10 @@ export default function LoginPage() {
                     </div>
 
                     <div className="space-y-3">
-                        
                         <button 
                             type="button"
                             onClick={() => window.location.href = 'http://localhost:5001/api/auth/google'}
-                            className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition"
+                            className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition bg-white"
                         >
                             Continue with Google
                         </button>

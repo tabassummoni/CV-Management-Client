@@ -9,14 +9,15 @@ export default function LoginSuccess() {
         const userParam = searchParams.get('user');
 
         if (token && userParam) {
-            localStorage.setItem('token', token);
             try {
                 const user = JSON.parse(decodeURIComponent(userParam));
+                localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(user));
+                window.location.href = '/';
             } catch (e) {
                 console.error("Failed to parse user data from URL", e);
+                window.location.href = '/login';
             }
-            window.location.href = '/dashboard';
         } else {
             window.location.href = '/login';
         }

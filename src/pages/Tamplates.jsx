@@ -5,6 +5,7 @@ const Templates = () => {
   const navigate = useNavigate();
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const lang = localStorage.getItem('lang') || 'en';
   
@@ -77,7 +78,7 @@ const Templates = () => {
                   <td className="py-4 px-6 text-sm font-bold text-slate-200 group-hover:text-purple-400 transition-colors">{pos.title}</td>
                   <td className="py-4 px-6 text-sm">
                     <span 
-                      onClick={() => navigate('/dashboard')} 
+                      onClick={() => navigate(user?.role === 'ADMIN' ? '/admin-dashboard' : '/dashboard')} 
                       className="text-xs font-bold text-purple-400 hover:text-purple-300 hover:underline cursor-pointer select-none"
                     >
                       {currentText.actionText}

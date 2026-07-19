@@ -90,45 +90,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-<section>
-  <div className="relative my-16 mx-auto max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-neutral/60 to-base-300/80 p-8 shadow-2xl backdrop-blur-xl">
-  <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/20 blur-3xl animate-pulse"></div>
-  <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-accent/20 blur-3xl animate-pulse delay-700"></div>
 
-  <div className="relative flex flex-col items-center text-center">
-    <div className="badge badge-outline badge-accent gap-2 px-4 py-3 text-xs font-semibold tracking-wider uppercase mb-4">
-      ✨ Talent Directory
-    </div>
-
-    <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-3">
-      Explore All Generated <span className="bg-gradient-to-r from-primary via-purple-400 to-accent bg-clip-text text-transparent">Candidate CVs</span>
-    </h2>
-
-    <p className="max-w-xl text-sm leading-relaxed text-base-content/70 mb-6">
-      Access the global registry of professionally generated resumes. Filter by customized recruiter positions, view live talent statistics, and review portfolios seamlessly in a clean database table view.
-    </p>
-
-    <div className="flex flex-col sm:flex-row gap-4 w-full justify-center items-center">
-      <button
-        onClick={() => navigate('/all-cvs')}
-        className="group relative inline-flex items-center justify-center gap-2 btn btn-primary px-8 text-white bg-gradient-to-r from-primary to-purple-600 border-none shadow-lg hover:from-purple-600 hover:to-primary hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
-      >
-        🔍 View All CVs Directory
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          strokeWidth={2} 
-          stroke="currentColor" 
-          className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-        </svg>
-      </button>
-    </div>
-  </div>
-</div>
-</section>
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-16 text-gray-900">How It Works</h2>
@@ -175,8 +137,11 @@ export default function Home() {
           <p className="text-xl mb-8 opacity-90">
             Join thousands of job seekers who have created their perfect CV
           </p>
-          <Link to="/dashboard" state={{ openCreateCvModal: true }} className="btn btn-lg bg-white text-purple-600 border-0 hover:bg-gray-100">
+          <Link to="/dashboard" state={{ openCreateCvModal: true }} className="btn btn-lg flex gap-2 text-center justify-center items-centerbg-white text-purple-600 p-1 border-0 rounded-2xl  hover:bg-gray-100">
             Create Your CV Now
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
           </Link>
         </div>
       </section>
