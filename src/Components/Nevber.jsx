@@ -330,7 +330,7 @@ const Navbar = () => {
                 ) : (
                     <div className="flex gap-2">
                         <Link to="/login" className="btn btn-sm btn-outline">{currentText.login}</Link>
-                        <Link to="/signup" className="btn btn-sm btn-primary rounded-2xl w-18 bg-purple-600 border-0 hover:bg-purple-700 text-white">{currentText.signup}</Link>
+                        <Link to="/signup" className="btn btn-sm btn-primary rounded-2xl w-18 bg-purple-600 border-0 text-center hover:bg-purple-700 text-white">{currentText.signup}</Link>
                     </div>
                 )}
             </div>
