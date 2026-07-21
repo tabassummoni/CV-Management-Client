@@ -20,7 +20,10 @@ import PositionDetails from './RecruitersPages/PositionDetails';
 import PublicPositionDetails from './pages/PublicPositionDetails';
 import JobBoard from './pages/JobBoard';
 import Profile from './pages/Profile';
-import AdminDashboard from './AdminPages/AdminDashboard';
+import AdminDashboard from "./adminPages/AdminDashboard";
+
+
+
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
