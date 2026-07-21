@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const PositionForm = () => {
   const { id } = useParams();
@@ -24,7 +25,7 @@ const PositionForm = () => {
 
   const fetchGlobalAttributes = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/attribute/all');
+      const res = await fetch('${API_BASE_URL}/api/attribute/all');
       if (res.ok) {
         const data = await res.json();
         setAllAttributes(data);
@@ -42,7 +43,7 @@ const PositionForm = () => {
     if (!isEditMode) return;
     const loadPositionData = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/position/all');
+        const res = await fetch('${API_BASE_URL}/api/position/all');
         if (res.ok) {
           const positions = await res.json();
           const target = positions.find(p => p.id === parseInt(id));
@@ -91,7 +92,7 @@ const handleAddNewAttribute = async () => {
   setIsAddingAttribute(true);
   
   try {
-    const res = await fetch('http://localhost:5001/api/attribute/add', {
+    const res = await fetch('${API_BASE_URL}/api/attribute/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: newAttrName, dataType: newAttrType })
@@ -133,8 +134,8 @@ const handleAddNewAttribute = async () => {
     };
 
     const url = isEditMode 
-      ? `http://localhost:5001/api/position/${id}` 
-      : 'http://localhost:5001/api/position/create';
+      ? `${API_BASE_URL}/api/position/${id}` 
+      : '${API_BASE_URL}/api/position/create';
       
     const method = isEditMode ? 'PUT' : 'POST';
 

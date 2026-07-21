@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const ShowCv = () => {
   const { id } = useParams();
@@ -24,7 +25,7 @@ const ShowCv = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:5001/api/cv/${id}`)
+    fetch(`${API_BASE_URL}/api/cv/${id}`)
       .then(res => res.json())
       .then(data => {
         setCvData({

@@ -11,7 +11,7 @@
 //     const fetchTranslations = async () => {
 //       try {
 //         setLoading(true);
-//         const res = await fetch(`http://localhost:5001/api/locales/${lang}`);
+//         const res = await fetch(`${API_BASE_URL}/api/locales/${lang}`);
 //         if (res.ok) {
 //           const data = await res.json();
 //           setT(data);

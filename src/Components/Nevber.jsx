@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
+import { API_BASE_URL } from '../config/api.jsx';
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -23,7 +23,7 @@ const Navbar = () => {
     const fetchNotifications = async () => {
         if (!user?.id || isRecruiter) return;
         try {
-            const response = await fetch('http://localhost:5001/api/applications/all', {
+            const response = await fetch('${API_BASE_URL}/api/applications/all', {
                 headers: {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache'
@@ -33,7 +33,7 @@ const Navbar = () => {
             if (response.ok) {
                 const apps = await response.json();
                 
-                const reactRes = await fetch('http://localhost:5001/api/applications/reacts', {
+                const reactRes = await fetch('${API_BASE_URL}/api/applications/reacts', {
                     headers: {
                         'Cache-Control': 'no-cache',
                         'Pragma': 'no-cache'

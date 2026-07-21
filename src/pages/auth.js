@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { API_BASE_URL } from '../config/api.jsx';
 
 export default function createAuthRouter(googleAuthManager, prisma) {
     const router = express.Router();
@@ -112,7 +113,7 @@ export default function createAuthRouter(googleAuthManager, prisma) {
                     id: req.user.id,
                     name: req.user.name,
                     email: req.user.email,
-                    role: 'CANDIDATE' // গুগল লগইনে সর্বদা 'CANDIDATE' রোল দেওয়া হচ্ছে
+                    role: 'CANDIDATE' 
                 };
 
                 const token = jwt.sign(
@@ -121,8 +122,9 @@ export default function createAuthRouter(googleAuthManager, prisma) {
                     { expiresIn: '7d' }
                 );
                 const userParam = encodeURIComponent(JSON.stringify(userPayload));
-                res.redirect(`http://localhost:5173/login-success?token=${token}&user=${userParam}`);
-            } catch (error) {
+                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+                res.redirect(`${frontendUrl}/login-success?token=${token}&user=${userParam}`);
+            }catch (error) {
                 console.error('Callback Redirection Error:', error);
                 res
                     .status(500)

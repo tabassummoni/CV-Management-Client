@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import { API_BASE_URL } from '../config/api.jsx';
 const AdminDashboard = () => {
   const [activeMenu, setActiveMenu] = useState('Dashboards');
   const [stats, setStats] = useState({ totalUsers: 0, totalCvs: 0, totalApplications: 0, totalPositions: 0 });
@@ -18,11 +18,11 @@ const AdminDashboard = () => {
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
         const results = await Promise.allSettled([
-          fetch('http://localhost:5001/api/admin/stats/all', { headers }),
-          fetch('http://localhost:5001/api/admin/users/all', { headers }),
-          fetch('http://localhost:5001/api/admin/applications/all', { headers }),
-          fetch('http://localhost:5001/api/admin/positions/all', { headers }),
-          fetch('http://localhost:5001/api/admin/cvs/all', { headers })
+          fetch('${API_BASE_URL}/api/admin/stats/all', { headers }),
+          fetch('${API_BASE_URL}/api/admin/users/all', { headers }),
+          fetch('${API_BASE_URL}/api/admin/applications/all', { headers }),
+          fetch('${API_BASE_URL}/api/admin/positions/all', { headers }),
+          fetch('${API_BASE_URL}/api/admin/cvs/all', { headers })
         ]);
 
         let currentActiveUsersCount = 0;
@@ -75,7 +75,7 @@ const AdminDashboard = () => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm("⚠️ Are you sure you want to delete this user from the system?")) {
         try {
-            const res = await fetch(`http://localhost:5001/api/admin/users/${userId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });

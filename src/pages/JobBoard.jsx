@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const JobBoard = () => {
   const [positions, setPositions] = useState([]);
@@ -11,7 +12,7 @@ const JobBoard = () => {
   useEffect(() => {
     const fetchPositions = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/position/all');
+        const res = await fetch('${API_BASE_URL}/api/position/all');
         if (res.ok) {
           const data = await res.json();
           setPositions(data);

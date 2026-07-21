@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const Search = () => {
   const [searchParams] = useSearchParams();
@@ -13,7 +14,7 @@ const Search = () => {
   useEffect(() => {
     if (query) {
       setLoading(true);
-      fetch(`http://localhost:5001/api/cv/search/query?q=${encodeURIComponent(query)}`)
+      fetch(`${API_BASE_URL}/api/cv/search/query?q=${encodeURIComponent(query)}`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) setSearchResults(data);

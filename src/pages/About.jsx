@@ -1,4 +1,7 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api.jsx';
+
+
 
 export default function About() {
   return (
