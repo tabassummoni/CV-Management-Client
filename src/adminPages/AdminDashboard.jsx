@@ -40,7 +40,7 @@ const AdminDashboard = () => {
           }
         }
 
-        if (results[2].status === 'fulfilled' && Antiquities === 'fulfilled' || results[2].value.ok) {
+        if (results[2].status === 'fulfilled' && results[2].value.ok) {
           const appsData = await results[2].value.json();
           if (Array.isArray(appsData)) setApplicationsList(appsData);
         }

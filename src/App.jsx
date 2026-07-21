@@ -78,7 +78,6 @@ function App() {
           <Route path="/recruiter/positions/edit/:id" element={<PositionForm />} />
           <Route path="/apply/:id" element={<PublicPositionDetails />} />
           <Route path="/recruiter/positions/:id" element={<PositionDetails currentUserId={userId} />} />
-
           <Route
             path="/admin-dashboard"
             element={

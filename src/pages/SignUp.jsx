@@ -7,7 +7,7 @@ export default function SignUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [role, setRole] = useState('CANDIDATE'); // 📌 ডিফল্ট রোল
+    const [role, setRole] = useState('CANDIDATE'); 
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
