@@ -23,7 +23,7 @@ const Navbar = () => {
     const fetchNotifications = async () => {
         if (!user?.id || isRecruiter) return;
         try {
-            const response = await fetch('${API_BASE_URL}/api/applications/all', {
+            const response = await fetch(`${API_BASE_URL}/api/applications/all`, {
                 headers: {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache'
@@ -33,7 +33,7 @@ const Navbar = () => {
             if (response.ok) {
                 const apps = await response.json();
                 
-                const reactRes = await fetch('${API_BASE_URL}/api/applications/reacts', {
+                const reactRes = await fetch(`${API_BASE_URL}/api/applications/reacts`, {
                     headers: {
                         'Cache-Control': 'no-cache',
                         'Pragma': 'no-cache'

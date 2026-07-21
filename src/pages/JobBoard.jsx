@@ -12,7 +12,7 @@ const JobBoard = () => {
   useEffect(() => {
     const fetchPositions = async () => {
       try {
-        const res = await fetch('${API_BASE_URL}/api/position/all');
+        const res = await fetch(`${API_BASE_URL}/api/position/all`);
         if (res.ok) {
           const data = await res.json();
           setPositions(data);

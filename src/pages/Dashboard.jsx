@@ -54,7 +54,7 @@ const Dashboard = () => {
 
   const fetchPositions = async () => {
     try {
-      const response = await fetch('${API_BASE_URL}/api/cv/positions/all');
+      const response = await fetch(`${API_BASE_URL}/api/cv/positions/all`);
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data)) {
@@ -91,7 +91,7 @@ const Dashboard = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('${API_BASE_URL}/api/cv', {
+      const response = await fetch(`${API_BASE_URL}/api/cv`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -136,7 +136,7 @@ const Dashboard = () => {
   const handleBulkDelete = async () => {
     if (selectedCvIds.length === 0) return;
     if (window.confirm('Delete selected CVs?')) {
-      const res = await fetch('${API_BASE_URL}/api/cv/bulk-delete', {
+      const res = await fetch(`${API_BASE_URL}/api/cv/bulk-delete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedCvIds })
@@ -152,7 +152,7 @@ const Dashboard = () => {
     if (selectedCvIds.length === 0) return;
     
     try {
-      const res = await fetch('${API_BASE_URL}/api/cv/bulk-publish', {
+      const res = await fetch(`${API_BASE_URL}/api/cv/bulk-publish`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedCvIds })

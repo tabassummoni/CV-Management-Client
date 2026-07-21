@@ -32,7 +32,7 @@ const AllCvs = () => {
     const fetchPublishedCvs = async () => {
       try {
         setLoading(true);
-        const response = await fetch('${API_BASE_URL}/api/cv/all/published');
+        const response = await fetch(`${API_BASE_URL}/api/cv/all/published`);
         if (response.ok) {
           const data = await response.json();
           setPublishedCvs(data);

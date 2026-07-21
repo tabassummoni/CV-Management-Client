@@ -60,7 +60,7 @@ const PublicPositionDetails = () => {
 
     if (window.confirm(`Are you sure you want to apply with this CV?`)) {
       try {
-        const res = await fetch('${API_BASE_URL}/api/applications', {
+        const res = await fetch(`${API_BASE_URL}/api/applications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
