@@ -18,11 +18,11 @@ const AdminDashboard = () => {
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
         const results = await Promise.allSettled([
-          fetch('${API_BASE_URL}/api/admin/stats/all', { headers }),
-          fetch('${API_BASE_URL}/api/admin/users/all', { headers }),
-          fetch('${API_BASE_URL}/api/admin/applications/all', { headers }),
-          fetch('${API_BASE_URL}/api/admin/positions/all', { headers }),
-          fetch('${API_BASE_URL}/api/admin/cvs/all', { headers })
+          fetch(`${API_BASE_URL}/api/admin/stats/all`, { headers }),
+          fetch(`${API_BASE_URL}/api/admin/users/all`, { headers }),
+          fetch(`${API_BASE_URL}/api/admin/applications/all`, { headers }),
+          fetch(`${API_BASE_URL}/api/admin/positions/all`, { headers }),
+          fetch(`${API_BASE_URL}/api/admin/cvs/all`, { headers })
         ]);
 
         let currentActiveUsersCount = 0;
