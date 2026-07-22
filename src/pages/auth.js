@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { API_BASE_URL } from '../config/api.jsx';
+import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
 
 export default function createAuthRouter(googleAuthManager, prisma) {
     const router = express.Router();

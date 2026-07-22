@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../config/api.jsx';
+import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
 const AdminDashboard = () => {
   const [activeMenu, setActiveMenu] = useState('Dashboards');
   const [stats, setStats] = useState({ totalUsers: 0, totalCvs: 0, totalApplications: 0, totalPositions: 0 });
   const [usersList, setUsersList] = useState([]);
   const [recentLogs, setRecentLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const API_BASE_URL = CONFIG_API_URL || 'https://cv-management-server.vercel.app';
   const [applicationsList, setApplicationsList] = useState([]);
   const [positionsList, setPositionsList] = useState([]);
   const [cvsList, setCvsList] = useState([]);

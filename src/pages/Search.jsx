@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { API_BASE_URL } from '../config/api.jsx';
+import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
 
 const Search = () => {
   const [searchParams] = useSearchParams();
