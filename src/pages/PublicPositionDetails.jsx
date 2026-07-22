@@ -14,7 +14,7 @@ const PublicPositionDetails = () => {
   useEffect(() => {
     const fetchPositionDetails = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/position/all`);
+        const res = await fetch(`${API_BASE_URL}/api/positions/all`);
         if (res.ok) {
           const positions = await res.json();
           const targetPosition = positions.find(p => p.id === parseInt(id));

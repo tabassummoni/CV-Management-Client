@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+
 const AdminDashboard = () => {
   const [activeMenu, setActiveMenu] = useState('Dashboards');
   const [stats, setStats] = useState({ totalUsers: 0, totalCvs: 0, totalApplications: 0, totalPositions: 0 });
   const [usersList, setUsersList] = useState([]);
   const [recentLogs, setRecentLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const API_BASE_URL = CONFIG_API_URL || 'https://cv-management-server.vercel.app';
+  const [loading, setLoading] = useState(true);  
   const [applicationsList, setApplicationsList] = useState([]);
   const [positionsList, setPositionsList] = useState([]);
   const [cvsList, setCvsList] = useState([]);
@@ -18,11 +18,11 @@ const AdminDashboard = () => {
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
         const results = await Promise.allSettled([
-          fetch(`${API_BASE_URL}/api/admin/stats/all`, { headers }),
-          fetch(`${API_BASE_URL}/api/admin/users/all`, { headers }),
-          fetch(`${API_BASE_URL}/api/admin/applications/all`, { headers }),
-          fetch(`${API_BASE_URL}/api/admin/positions/all`, { headers }),
-          fetch(`${API_BASE_URL}/api/admin/cvs/all`, { headers })
+          fetch(`${CONFIG_API_URL}/api/admin/stats/all`, { headers }),
+          fetch(`${CONFIG_API_URL}/api/admin/users/all`, { headers }),
+          fetch(`${CONFIG_API_URL}/api/admin/applications/all`, { headers }),
+          fetch(`${CONFIG_API_URL}/api/admin/positions/all`, { headers }),
+          fetch(`${CONFIG_API_URL}/api/admin/cvs/all`, { headers })
         ]);
 
         let currentActiveUsersCount = 0;
@@ -75,7 +75,7 @@ const AdminDashboard = () => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm("⚠️ Are you sure you want to delete this user from the system?")) {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
+            const res = await fetch(`${CONFIG_API_URL}/api/admin/users/${userId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });

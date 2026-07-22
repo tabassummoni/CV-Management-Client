@@ -43,7 +43,7 @@ const PositionForm = () => {
     if (!isEditMode) return;
     const loadPositionData = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/position/all`);
+        const res = await fetch(`${API_BASE_URL}/api/positions/all`);
         if (res.ok) {
           const positions = await res.json();
           const target = positions.find(p => p.id === parseInt(id));

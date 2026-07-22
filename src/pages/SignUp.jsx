@@ -12,6 +12,7 @@ export default function SignUp() {
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+  const API_BASE_URL = CONFIG_API_URL || 'https://cv-management-server.vercel.app';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
