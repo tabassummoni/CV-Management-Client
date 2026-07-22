@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const PublicPositionDetails = () => {
   const { id } = useParams();
@@ -14,13 +14,10 @@ const PublicPositionDetails = () => {
   useEffect(() => {
     const fetchPositionDetails = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/positions/all`);
+        const res = await fetch(new URL(`/api/positions/${id}`, API_BASE_URL).href);
         if (res.ok) {
-          const positions = await res.json();
-          const targetPosition = positions.find(p => p.id === parseInt(id));
-          if (targetPosition) {
-            setPosition(targetPosition);
-          }
+          const data = await res.json();
+          setPosition(data);
         }
       } catch (error) {
         console.error(error);
@@ -60,7 +57,7 @@ const PublicPositionDetails = () => {
 
     if (window.confirm(`Are you sure you want to apply with this CV?`)) {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/applications`, {
+        const res = await fetch(new URL('/api/applications', API_BASE_URL).href, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

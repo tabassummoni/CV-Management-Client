@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const HeartIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
@@ -32,7 +32,7 @@ const AllCvs = () => {
     const fetchPublishedCvs = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/api/cv/all/published`);
+        const response = await fetch(new URL('/api/cv/all/published', API_BASE_URL).href);
         if (response.ok) {
           const data = await response.json();
           setPublishedCvs(data);

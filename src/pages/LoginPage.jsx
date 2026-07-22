@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 
 export default function LoginPage() {
@@ -24,7 +24,7 @@ export default function LoginPage() {
         }
         
         try {
-            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            const response = await fetch(new URL('/api/auth/login', API_BASE_URL).href, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export default function LoginPage() {
                     <div className="space-y-3">
                         <button 
                             type="button"
-                            onClick={() => window.location.href = `${API_BASE_URL}/api/auth/google`}
+                            onClick={() => window.location.href = new URL('/api/auth/google', API_BASE_URL).href}
                             className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition bg-white"
                         >
                             Continue with Google

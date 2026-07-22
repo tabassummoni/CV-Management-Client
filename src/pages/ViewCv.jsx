@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 function useDebounce(callback, delay) {
   const [debouncedCallback, setDebouncedCallback] = useState(() => callback);
@@ -47,7 +47,7 @@ const ViewCv = () => {
   const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/cv/${id}`)
+    fetch(new URL(`/api/cv/${id}`, API_BASE_URL).href)
       .then(res => res.json())
       .then(data => {
         setCvData(prev => ({ ...prev, ...data }));
@@ -61,7 +61,7 @@ const ViewCv = () => {
     setErrorMsg('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/cv/${id}/inplace`, {
+      const response = await fetch(new URL(`/api/cv/${id}/inplace`, API_BASE_URL).href, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

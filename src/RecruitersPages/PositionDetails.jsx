@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DiscussionTab from "./DiscussionTab";
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const PositionDetails = ({ currentUserId }) => {
   const { id } = useParams();
@@ -13,13 +13,10 @@ const PositionDetails = ({ currentUserId }) => {
   useEffect(() => {
     const fetchPositionDetails = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/positions/all`);
+        const res = await fetch(new URL(`/api/positions/${id}`, API_BASE_URL).href);
         if (res.ok) {
-          const positions = await res.json();
-          const target = positions.find(p => p.id === parseInt(id));
-          if (target) {
-            setPosition(target);
-          }
+          const data = await res.json();
+          setPosition(data);
         }
       } catch (error) {
         console.error(error);

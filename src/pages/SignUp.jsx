@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 export default function SignUp() {
     const [firstName, setFirstName] = useState('');
@@ -12,7 +12,6 @@ export default function SignUp() {
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
-  const API_BASE_URL = CONFIG_API_URL || 'https://cv-management-server.vercel.app';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -46,7 +45,7 @@ export default function SignUp() {
         try {
             const fullName = `${firstName} ${lastName}`;
 
-            const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+            const response = await fetch(new URL('/api/auth/signup', API_BASE_URL).href, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -59,16 +58,16 @@ export default function SignUp() {
                 }),
             });
 
-            const textData = await response.text();
-            let data = {};
-            if (textData) {
+            if (!response.ok) {
+                let errorData = {};
                 try {
-                    data = JSON.parse(textData);
+                    errorData = await response.json();
                 } catch (e) {
-                    console.log("Response parsing error:", textData);
                 }
+                throw new Error(errorData.error || 'Something went wrong');
             }
 
+            const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.error || 'Something went wrong');
             }
@@ -209,7 +208,7 @@ export default function SignUp() {
                     <div className="space-y-3">
                         <button
                             type="button"
-                            onClick={() => window.location.href = `${API_BASE_URL}/api/auth/google`}
+                            onClick={() => window.location.href = new URL('/api/auth/google', API_BASE_URL).href}
                             className="w-full border border-gray-300 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-50 transition text-sm flex items-center justify-center bg-white"
                         >
                             🌐 Continue with Google

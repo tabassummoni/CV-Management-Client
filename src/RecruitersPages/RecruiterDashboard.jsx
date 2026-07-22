@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const RecruiterDashboard = () => {
   const [positions, setPositions] = useState([]);
@@ -26,19 +26,19 @@ const RecruiterDashboard = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const posRes = await fetch(`${API_BASE_URL}/api/position/all`);
+      const posRes = await fetch(new URL('/api/positions/all', API_BASE_URL).href);
       if (posRes.ok) {
         const posData = await posRes.json();
         setPositions(posData);
       }
 
-      const appRes = await fetch(`${API_BASE_URL}/api/applications/all`);
+      const appRes = await fetch(new URL('/api/applications/all', API_BASE_URL).href);
       if (appRes.ok) {
         const appData = await appRes.json();
         setApplications(appData);
       }
 
-      const reactRes = await fetch(`${API_BASE_URL}/api/applications/reacts`);
+      const reactRes = await fetch(new URL('/api/applications/reacts', API_BASE_URL).href);
       if (reactRes.ok) {
         const reactData = await reactRes.json();
         setReacts(reactData);
@@ -63,7 +63,7 @@ const RecruiterDashboard = () => {
   const handleBulkDuplicate = async () => {
     if (selectedPositionIds.length === 0) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/position/bulk-duplicate`, {
+      const res = await fetch(new URL('/api/positions/bulk-duplicate', API_BASE_URL).href, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedPositionIds })
@@ -81,7 +81,7 @@ const RecruiterDashboard = () => {
     if (selectedPositionIds.length === 0) return;
     if (window.confirm(`Are you sure you want to delete ${selectedPositionIds.length} selected position(s)?`)) {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/position/bulk-delete`, {
+        const res = await fetch(new URL('/api/positions/bulk-delete', API_BASE_URL).href, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ids: selectedPositionIds })
@@ -121,7 +121,7 @@ const RecruiterDashboard = () => {
     if (!selectedApp || !selectedType) return;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/applications/react`, {
+      const res = await fetch(new URL('/api/applications/react', API_BASE_URL).href, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

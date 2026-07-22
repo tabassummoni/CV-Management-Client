@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const Templates = () => {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const Templates = () => {
   const currentText = text[lang] || text.en;
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/cv/positions/all`)
+    fetch(new URL('/api/positions/all', API_BASE_URL).href)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setPositions(data);

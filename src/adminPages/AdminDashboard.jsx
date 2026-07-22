@@ -1,5 +1,7 @@
+
+
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const AdminDashboard = () => {
   const [activeMenu, setActiveMenu] = useState('Dashboards');
@@ -17,12 +19,15 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
+        // 💡 Plural endpoint & Safe URL formatting
+        const baseUrl = API_BASE_URL.replace(/\/$/, '');
+
         const results = await Promise.allSettled([
-          fetch(`${CONFIG_API_URL}/api/admin/stats/all`, { headers }),
-          fetch(`${CONFIG_API_URL}/api/admin/users/all`, { headers }),
-          fetch(`${CONFIG_API_URL}/api/admin/applications/all`, { headers }),
-          fetch(`${CONFIG_API_URL}/api/admin/positions/all`, { headers }),
-          fetch(`${CONFIG_API_URL}/api/admin/cvs/all`, { headers })
+          fetch(`${baseUrl}/api/admin/stats/all`, { headers }),
+          fetch(`${baseUrl}/api/admin/users/all`, { headers }),
+          fetch(`${baseUrl}/api/applications/all`, { headers }),
+          fetch(`${baseUrl}/api/positions/all`, { headers }),
+          fetch(`${baseUrl}/api/cv/all/published`, { headers })
         ]);
 
         let currentActiveUsersCount = 0;
@@ -52,7 +57,7 @@ const AdminDashboard = () => {
 
         if (results[4].status === 'fulfilled' && results[4].value.ok) {
           const cvsData = await results[4].value.json();
-          if (Array.isArray(cvsData)) setCvsList(cvsData);
+          if (Array.isArray(cvsData)) setCvsList(cvsData); 
         }
 
         setRecentLogs([
@@ -70,12 +75,13 @@ const AdminDashboard = () => {
     fetchAllStats();
     const intervalId = setInterval(fetchAllStats, 10000); 
     return () => clearInterval(intervalId); 
-  }, [loading]);
+  }, []);
 
   const handleDeleteUser = async (userId) => {
     if (window.confirm("⚠️ Are you sure you want to delete this user from the system?")) {
         try {
-            const res = await fetch(`${CONFIG_API_URL}/api/admin/users/${userId}`, {
+            const baseUrl = API_BASE_URL.replace(/\/$/, '');
+            const res = await fetch(`${baseUrl}/api/admin/users/${userId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
@@ -92,7 +98,7 @@ const AdminDashboard = () => {
   const menuItems = [
       { category: 'MENU', items: ['Dashboards', 'Applications', 'Positions', 'Cvs'] },
       { category: 'Users Details', items: ['All Users', 'All Recruiters'] },
-      { category: 'SETTINGS', items: ['System Logs',  'Security'] }
+      { category: 'SETTINGS', items: ['System Logs', 'Security'] }
   ];
 
   const filteredUsers = usersList.filter(u => {
@@ -104,6 +110,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800 flex font-sans">
       
+      {/* Sidebar Navigation */}
       <aside className="w-64 bg-gradient-to-b from-slate-900 to-fuchsia-950 text-white flex flex-col shadow-xl hidden md:flex">
         <div className="p-6 border-b border-white/10 flex items-center gap-2">
             <span className="text-2xl">🛡️</span>
@@ -139,6 +146,7 @@ const AdminDashboard = () => {
         </nav>
       </aside>
 
+    
       <main className="flex-1 flex flex-col overflow-x-hidden">
         <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 z-10">
             <div className="text-sm font-semibold text-gray-700">
@@ -162,34 +170,50 @@ const AdminDashboard = () => {
                 <div className="badge badge-error p-3 text-white font-mono font-bold text-xs">Admin Session</div>
             </div>
 
+        
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6">
                 <div className="flex justify-between items-center border-b border-gray-100 pb-4">
                     <h3 className="font-bold text-gray-700 text-sm tracking-wide">Platform Performance Indicators</h3>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-xl text-amber-600">📄</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Total Registered Users Status */}
+                    <div className="flex items-start gap-4 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl text-blue-600 shrink-0">👥</div>
                         <div>
-                            <p className="text-xs text-gray-400 font-semibold">Total CVs Generated</p>
-                            <h4 className="text-2xl font-black text-gray-800 mt-0.5">{stats.totalCvs}</h4>
-                            <p className="text-[11px] text-green-600 font-bold mt-1">▲ Platform Growth <span className="text-gray-400 font-normal">Active</span></p>
+                            <p className="text-xs text-gray-500 font-semibold">Total Registered Users</p>
+                            <h4 className="text-2xl font-black text-gray-800 mt-0.5">{stats.totalUsers || usersList.length || 0}</h4>
+                            <p className="text-[11px] text-blue-600 font-bold mt-1">▲ Accounts <span className="text-gray-400 font-normal">Active</span></p>
                         </div>
                     </div>
-                    <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-xl text-red-600">💼</div>
+
+          
+                    <div className="flex items-start gap-4 p-3 bg-amber-50/50 rounded-xl border border-amber-100">
+                        <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-xl text-amber-600 shrink-0">📄</div>
                         <div>
-                            <p className="text-xs text-gray-400 font-semibold">Total Applications</p>
-                            <h4 className="text-2xl font-black text-gray-800 mt-0.5">{stats.totalApplications}</h4>
-                            <p className="text-[11px] text-blue-600 font-bold mt-1">Conversion Rate: <span className="font-black">Optimal</span></p>
+                            <p className="text-xs text-gray-500 font-semibold">Total CVs Generated</p>
+                            <h4 className="text-2xl font-black text-gray-800 mt-0.5">{stats.totalCvs || cvsList.length || 0}</h4>
+                            <p className="text-[11px] text-amber-600 font-bold mt-1">▲ Database <span className="text-gray-400 font-normal">Synced</span></p>
                         </div>
                     </div>
-                    <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-xl text-green-600">🏢</div>
+
+            
+                    <div className="flex items-start gap-4 p-3 bg-red-50/50 rounded-xl border border-red-100">
+                        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-xl text-red-600 shrink-0">💼</div>
                         <div>
-                            <p className="text-xs text-gray-400 font-semibold">Active Positions</p>
-                            <h4 className="text-2xl font-black text-green-600 mt-0.5">{stats.totalPositions}</h4>
-                            <p className="text-[11px] text-green-500 font-bold mt-1">Live Job Boards <span className="font-black">▲ Stable</span></p>
+                            <p className="text-xs text-gray-500 font-semibold">Total Applications</p>
+                            <h4 className="text-2xl font-black text-gray-800 mt-0.5">{stats.totalApplications || applicationsList.length || 0}</h4>
+                            <p className="text-[11px] text-red-600 font-bold mt-1">Conversion: <span className="font-black">Optimal</span></p>
+                        </div>
+                    </div>
+
+              
+                    <div className="flex items-start gap-4 p-3 bg-emerald-50/50 rounded-xl border border-emerald-100">
+                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-xl text-emerald-600 shrink-0">🏢</div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-semibold">Active Positions</p>
+                            <h4 className="text-2xl font-black text-emerald-600 mt-0.5">{stats.totalPositions || positionsList.length || 0}</h4>
+                            <p className="text-[11px] text-emerald-500 font-bold mt-1">Live Job Boards <span className="font-black">▲ Stable</span></p>
                         </div>
                     </div>
                 </div>
@@ -374,22 +398,23 @@ const AdminDashboard = () => {
 
             </div>
 
+            {/* 🔢 Bottom Quick Status Cards Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
-                    <h4 className="text-xl font-black text-gray-800">{stats.totalUsers || 0}</h4>
+                    <h4 className="text-2xl font-black text-blue-600">{stats.totalUsers || usersList.length || 0}</h4>
                     <p className="text-[10px] text-gray-400 font-medium mt-0.5">Total Registered Accounts</p>
                 </div>
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
-                    <h4 className="text-xl font-black text-gray-800">{stats.totalCvs || 0}</h4>
+                    <h4 className="text-2xl font-black text-amber-600">{stats.totalCvs || cvsList.length || 0}</h4>
                     <p className="text-[10px] text-gray-400 font-medium mt-0.5">Active Database CVs</p>
                 </div>
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
-                    <h4 className="text-xl font-black text-gray-800">{stats.totalApplications || 0}</h4>
+                    <h4 className="text-2xl font-black text-red-600">{stats.totalApplications || applicationsList.length || 0}</h4>
                     <p className="text-[10px] text-gray-400 font-medium mt-0.5">Processed Applications</p>
                 </div>
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
-                    <h4 className="text-xl font-black text-emerald-600">100%</h4>
-                    <p className="text-[10px] text-gray-400 font-medium mt-0.5">Core Service Uptime</p>
+                    <h4 className="text-2xl font-black text-emerald-600">{stats.totalPositions || positionsList.length || 0}</h4>
+                    <p className="text-[10px] text-gray-400 font-medium mt-0.5">Active Job Positions</p>
                 </div>
             </div>
 

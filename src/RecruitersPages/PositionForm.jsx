@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const PositionForm = () => {
   const { id } = useParams();
@@ -25,7 +25,7 @@ const PositionForm = () => {
 
   const fetchGlobalAttributes = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/attribute/all`);
+      const res = await fetch(new URL('/api/attributes/all', API_BASE_URL).href);
       if (res.ok) {
         const data = await res.json();
         setAllAttributes(data);
@@ -43,20 +43,17 @@ const PositionForm = () => {
     if (!isEditMode) return;
     const loadPositionData = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/positions/all`);
+        const res = await fetch(new URL(`/api/positions/${id}`, API_BASE_URL).href);
         if (res.ok) {
-          const positions = await res.json();
-          const target = positions.find(p => p.id === parseInt(id));
-          if (target) {
-            setTitle(target.title);
-            setCompanyName(target.companyName || '');
-            setDescription(target.description);
-            setMaxProjects(target.maxProjects);
-            setProjectTags(target.projectTags || []);
-            setDeadline(target.deadline ? new Date(target.deadline).toISOString().split('T')[0] : '');
-            setVersion(target.version);
-            setSelectedAttributeIds(target.attributes?.map(a => a.id) || []);
-          }
+          const data = await res.json();
+          setTitle(data.title);
+          setCompanyName(data.companyName || '');
+          setDescription(data.description);
+          setMaxProjects(data.maxProjects);
+          setProjectTags(data.projectTags || []);
+          setDeadline(data.deadline ? new Date(data.deadline).toISOString().split('T')[0] : '');
+          setVersion(data.version);
+          setSelectedAttributeIds(data.attributes?.map(a => a.id) || []);
         }
       } catch (error) {
         console.error(error);
@@ -92,7 +89,7 @@ const handleAddNewAttribute = async () => {
   setIsAddingAttribute(true);
   
   try {
-    const res = await fetch(`${API_BASE_URL}/api/attribute/add`, {
+    const res = await fetch(new URL('/api/attributes/add', API_BASE_URL).href, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: newAttrName, dataType: newAttrType })
@@ -134,8 +131,8 @@ const handleAddNewAttribute = async () => {
     };
 
     const url = isEditMode 
-      ? `${API_BASE_URL}/api/position/${id}` 
-      : `${API_BASE_URL}/api/position/create`;
+      ? new URL(`/api/positions/${id}`, API_BASE_URL).href 
+      : new URL('/api/positions/create', API_BASE_URL).href;
       
     const method = isEditMode ? 'PUT' : 'POST';
 

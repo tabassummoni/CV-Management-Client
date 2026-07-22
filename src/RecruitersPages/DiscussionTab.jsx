@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const DiscussionTab = ({ positionId, currentUserId }) => {
   const [comments, setComments] = useState([]);
@@ -9,7 +9,7 @@ const DiscussionTab = ({ positionId, currentUserId }) => {
 
   const fetchComments = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/comments/position/${positionId}`);
+      const res = await fetch(new URL(`/api/comments/position/${positionId}`, API_BASE_URL).href);
       if (res.ok) {
         const data = await res.json();
         setComments(data);
@@ -38,7 +38,7 @@ const DiscussionTab = ({ positionId, currentUserId }) => {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/comments/position/${positionId}`, {
+      const res = await fetch(new URL(`/api/comments/position/${positionId}`, API_BASE_URL).href, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: newComment, userId: currentUserId })

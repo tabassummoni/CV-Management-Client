@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { API_BASE_URL as CONFIG_API_URL } from '../config/api.jsx';
+import { API_BASE_URL } from '../config/api.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const Dashboard = () => {
   const fetchCvs = async () => {
     if (!user?.id) return;
     try {
-      const response = await fetch(`${API_BASE_URL}/api/cv/user/${user.id}`, {
+      const response = await fetch(new URL(`/api/cv/user/${user.id}`, API_BASE_URL).href, {
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
@@ -54,7 +54,7 @@ const Dashboard = () => {
 
   const fetchPositions = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/cv/positions/all`);
+      const response = await fetch(new URL('/api/positions/all', API_BASE_URL).href);
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data)) {
@@ -74,13 +74,16 @@ const Dashboard = () => {
   useEffect(() => {
     if (user?.id) {
       fetchCvs();
-      fetchPositions(); 
     }
   }, [user?.id]);
 
   useEffect(() => {
     if (location.state?.openCreateCvModal && !applyingForPositionId) {
       setIsModalOpen(true);
+    }
+    // Fetch positions only when the modal is about to open
+    if (isModalOpen) {
+      fetchPositions();
     }
   }, [location.state]);
 
@@ -91,7 +94,7 @@ const Dashboard = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/cv`, {
+      const response = await fetch(new URL('/api/cv', API_BASE_URL).href, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -136,7 +139,7 @@ const Dashboard = () => {
   const handleBulkDelete = async () => {
     if (selectedCvIds.length === 0) return;
     if (window.confirm('Delete selected CVs?')) {
-      const res = await fetch(`${API_BASE_URL}/api/cv/bulk-delete`, {
+      const res = await fetch(new URL('/api/cv/bulk-delete', API_BASE_URL).href, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedCvIds })
@@ -152,7 +155,7 @@ const Dashboard = () => {
     if (selectedCvIds.length === 0) return;
     
     try {
-      const res = await fetch(`${API_BASE_URL}/api/cv/bulk-publish`, {
+      const res = await fetch(new URL('/api/cv/bulk-publish', API_BASE_URL).href, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedCvIds })
